@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import {
     ArrowLeft,
     Briefcase,
@@ -38,6 +39,7 @@ import {
 type ScreenMode = 'onboarding' | 'view' | 'editing';
 type PolishState = 'idle' | 'loading' | 'preview';
 
+const INDUSTRY_SUGGESTIONS = ['AI', '创投', '产品', '设计', '投资', 'SaaS', '增长', '创业', '品牌', '出海'];
 const isFieldHighlighted = (
     field: 'headline' | 'notes' | 'topics',
     currentProfile: DigitalCardProfile,
@@ -153,6 +155,29 @@ const BaseInfoRow = ({
     </div>
 );
 
+const ONBOARDING_EASE = [0.22, 1, 0.36, 1] as const;
+
+const OnboardingField = ({
+    label,
+    children,
+    hint,
+    icon,
+}: {
+    label: string;
+    children: React.ReactNode;
+    hint?: React.ReactNode;
+    icon?: React.ReactNode;
+}) => (
+    <div className="border-b border-[#ddd6cd] pb-5">
+        <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.18em] font-semibold text-[#9b948c]">
+            {icon ? <span className="text-[#b1a28d]">{icon}</span> : null}
+            <span>{label}</span>
+        </div>
+        <div className="mt-3">{children}</div>
+        {hint ? <div className="mt-3 text-[12px] leading-5 text-[#9b948c]">{hint}</div> : null}
+    </div>
+);
+
 export const MyCardPhoneView = ({
     onBack,
     initialMode,
@@ -164,6 +189,8 @@ export const MyCardPhoneView = ({
 }) => {
     const polishTimerRef = useRef<number | null>(null);
     const toastTimerRef = useRef<number | null>(null);
+    const onboardingScrollRef = useRef<HTMLDivElement | null>(null);
+    const prefersReducedMotion = useReducedMotion();
 
     const [screenMode, setScreenMode] = useState<ScreenMode>('view');
     const [savedProfile, setSavedProfile] = useState<DigitalCardProfile | null>(null);
@@ -178,6 +205,7 @@ export const MyCardPhoneView = ({
     const [isLocatingAddress, setIsLocatingAddress] = useState(false);
     const [isGeneratingHeadlines, setIsGeneratingHeadlines] = useState(false);
     const [isGeneratingTopics, setIsGeneratingTopics] = useState(false);
+    const [isCustomIndustryInputOpen, setIsCustomIndustryInputOpen] = useState(false);
 
     useEffect(() => {
         if (initialMode === 'onboarding') {
@@ -237,6 +265,13 @@ export const MyCardPhoneView = ({
     }, [screenMode, profile]);
 
     useEffect(() => {
+        if (step !== 2) {
+            setIsCustomIndustryInputOpen(false);
+            setIndustryInput('');
+        }
+    }, [step]);
+
+    useEffect(() => {
         onScreenModeChange?.(screenMode);
     }, [screenMode, onScreenModeChange]);
 
@@ -268,6 +303,14 @@ export const MyCardPhoneView = ({
         };
     }, []);
 
+    useEffect(() => {
+        if (screenMode !== 'onboarding' || !onboardingScrollRef.current) return;
+        onboardingScrollRef.current.scrollTo({
+            top: 0,
+            behavior: prefersReducedMotion ? 'auto' : 'smooth',
+        });
+    }, [screenMode, step, prefersReducedMotion]);
+
     const showToast = (message: string) => {
         setToast(message);
         if (toastTimerRef.current) window.clearTimeout(toastTimerRef.current);
@@ -275,6 +318,10 @@ export const MyCardPhoneView = ({
     };
 
     const status = useMemo(() => getProfileStatus(savedProfile), [savedProfile]);
+    const customIndustries = useMemo(
+        () => profile.industry.filter((item) => !INDUSTRY_SUGGESTIONS.includes(item)),
+        [profile.industry],
+    );
 
     const persistSavedProfile = (nextProfile: DigitalCardProfile) => {
         const withUpdatedAt = { ...cloneProfile(nextProfile), updatedAt: new Date().toISOString() };
@@ -390,6 +437,7 @@ export const MyCardPhoneView = ({
         }
         if (profile.industry.includes(normalized)) {
             setIndustryInput('');
+            setIsCustomIndustryInputOpen(false);
             return;
         }
         setProfile((current) => ({
@@ -397,6 +445,21 @@ export const MyCardPhoneView = ({
             industry: normalizeIndustries([...current.industry, normalized]),
         }));
         setIndustryInput('');
+        setIsCustomIndustryInputOpen(false);
+    };
+
+    const toggleIndustry = (value: string) => {
+        if (!profile.industry.includes(value) && profile.industry.length >= 10) {
+            showToast('最多添加 10 个标签');
+            return;
+        }
+
+        setProfile((current) => ({
+            ...current,
+            industry: current.industry.includes(value)
+                ? current.industry.filter((item) => item !== value)
+                : normalizeIndustries([...current.industry, value]),
+        }));
     };
 
     const removeIndustry = (value: string) => {
@@ -444,34 +507,51 @@ export const MyCardPhoneView = ({
         showToast('已撤销润色结果');
     };
 
+    const getEnterProps = (delay = 0) => ({
+        initial: { opacity: prefersReducedMotion ? 1 : 0, y: prefersReducedMotion ? 0 : 18 },
+        animate: {
+            opacity: 1,
+            y: 0,
+            transition: {
+                duration: prefersReducedMotion ? 0 : 0.56,
+                delay: prefersReducedMotion ? 0 : delay,
+                ease: ONBOARDING_EASE,
+            },
+        },
+    });
+
     const onboardingSteps = [
         {
             eyebrow: 'Step 1',
-            title: profile.name ? `你好，${profile.name}。` : '你好。',
+            title: '你好。',
             body: '接下来我问你几个简单问题，很快就能帮你把这张名片整理好。',
             content: (
-                <div className="space-y-5">
-                    <div>
-                        <div className="text-[13px] font-medium text-[#6b665f] mb-2">我该怎么称呼您</div>
-                        <input
-                            value={profile.name}
-                            onChange={(event) => setProfile((current) => ({ ...current, name: event.target.value.slice(0, 20) }))}
-                            placeholder="输入你的名字"
-                            className="w-full h-12 px-4 rounded-[14px] border border-[#e6e0d8] bg-white text-[15px] outline-none"
-                        />
-                    </div>
-                    <div>
-                        <div className="text-[13px] font-medium text-[#6b665f] mb-2">地区信息</div>
-                        <input
-                            value={profile.address}
-                            onChange={(event) => setProfile((current) => ({ ...current, address: event.target.value.slice(0, 24) }))}
-                            placeholder="例如 北京朝阳"
-                            className="w-full h-12 px-4 rounded-[14px] border border-[#e6e0d8] bg-white text-[15px] outline-none"
-                        />
-                        <p className="mt-2 text-[12px] text-[#9b948c]">
-                            {isLocatingAddress ? '正在获取当前位置…' : '会优先尝试自动填入实时位置，拿不到时可后续补充。'}
-                        </p>
-                    </div>
+                <div className="space-y-6">
+                    <motion.div {...getEnterProps(0.3)}>
+                        <OnboardingField label="怎么称呼你">
+                            <input
+                                value={profile.name}
+                                onChange={(event) => setProfile((current) => ({ ...current, name: event.target.value.slice(0, 20) }))}
+                                placeholder="输入你的名字"
+                                className="w-full bg-transparent text-[32px] leading-[1.06] tracking-[-0.05em] text-[#171717] outline-none placeholder:text-[#c8bcad]"
+                            />
+                        </OnboardingField>
+                    </motion.div>
+
+                    <motion.div {...getEnterProps(0.42)}>
+                        <OnboardingField
+                            label="所在地区"
+                            icon={<MapPin size={13} strokeWidth={1.8} />}
+                            hint={isLocatingAddress ? '正在获取当前位置…' : '会优先尝试自动填入实时位置，拿不到时可后续补充。'}
+                        >
+                            <input
+                                value={profile.address}
+                                onChange={(event) => setProfile((current) => ({ ...current, address: event.target.value.slice(0, 24) }))}
+                                placeholder="例如 北京朝阳"
+                                className="w-full bg-transparent text-[24px] leading-[1.15] tracking-[-0.03em] text-[#171717] outline-none placeholder:text-[#c8bcad]"
+                            />
+                        </OnboardingField>
+                    </motion.div>
                 </div>
             ),
         },
@@ -480,60 +560,139 @@ export const MyCardPhoneView = ({
             title: '先从工作聊起吧。',
             body: '你现在在哪家公司，做什么职位呢？',
             content: (
-                <div className="space-y-4">
-                    <input
-                        value={profile.company}
-                        onChange={(event) => setProfile((current) => ({ ...current, company: event.target.value.slice(0, 30) }))}
-                        placeholder="公司"
-                        className="w-full h-12 px-4 rounded-[14px] border border-[#e6e0d8] bg-white text-[15px] outline-none"
-                    />
-                    <input
-                        value={profile.position}
-                        onChange={(event) => setProfile((current) => ({ ...current, position: event.target.value.slice(0, 30) }))}
-                        placeholder="职位"
-                        className="w-full h-12 px-4 rounded-[14px] border border-[#e6e0d8] bg-white text-[15px] outline-none"
-                    />
+                <div className="space-y-6">
+                    <motion.div {...getEnterProps(0.28)}>
+                        <OnboardingField label="你在哪家公司">
+                            <input
+                                value={profile.company}
+                                onChange={(event) => setProfile((current) => ({ ...current, company: event.target.value.slice(0, 30) }))}
+                                placeholder="公司"
+                                className="w-full bg-transparent text-[30px] leading-[1.08] tracking-[-0.04em] text-[#171717] outline-none placeholder:text-[#c8bcad]"
+                            />
+                        </OnboardingField>
+                    </motion.div>
+
+                    <motion.div {...getEnterProps(0.4)}>
+                        <OnboardingField label="你负责什么角色">
+                            <input
+                                value={profile.position}
+                                onChange={(event) => setProfile((current) => ({ ...current, position: event.target.value.slice(0, 30) }))}
+                                placeholder="职位"
+                                className="w-full bg-transparent text-[30px] leading-[1.08] tracking-[-0.04em] text-[#171717] outline-none placeholder:text-[#c8bcad]"
+                            />
+                        </OnboardingField>
+                    </motion.div>
                 </div>
             ),
         },
         {
             eyebrow: 'Step 3',
-            title: '接下来我想帮你把方向也收得更清楚一点。',
+            title: '我想把你的方向收得更清楚一点。',
             body: '你更倾向于被归到哪些行业或身份里？比如 AI、创投、产品、设计都可以说说。',
             content: (
-                <div className="space-y-4">
-                    <div className="flex flex-wrap gap-2">
-                        {profile.industry.map((item) => (
-                            <div key={item} className="inline-flex items-center gap-2 rounded-full border border-[#dcd6cf] bg-white px-3 py-1.5 text-[13px] text-[#171717]">
-                                {item}
-                                <button type="button" onClick={() => removeIndustry(item)} className="text-[#9b948c]">
-                                    <X size={12} />
-                                </button>
-                            </div>
-                        ))}
-                        {profile.industry.length < 10 && (
-                            <div className="flex items-center gap-2">
-                                <input
-                                    value={industryInput}
-                                    maxLength={10}
-                                    onChange={(event) => setIndustryInput(event.target.value)}
-                                    onKeyDown={(event) => {
-                                        if (event.key === 'Enter') {
-                                            event.preventDefault();
-                                            addIndustry();
-                                        }
-                                    }}
-                                    placeholder="+ 添加标签"
-                                    className="h-10 min-w-[120px] px-3 rounded-full border border-dashed border-[#dcd6cf] bg-white text-[13px] outline-none"
-                                />
-                                <button type="button" onClick={addIndustry} className="w-10 h-10 rounded-full bg-[#7a684f] text-[#f7f2eb] flex items-center justify-center">
-                                    <Plus size={16} />
-                                </button>
+                <motion.div {...getEnterProps(0.3)}>
+                    <OnboardingField label="行业或身份标签" hint="先选几个最贴近你的，也可以添加自定义标签。最多 10 个。">
+                        <div className="flex flex-wrap gap-3">
+                            {INDUSTRY_SUGGESTIONS.map((item) => {
+                                const isSelected = profile.industry.includes(item);
+                                return (
+                                    <button
+                                        key={item}
+                                        type="button"
+                                        onClick={() => toggleIndustry(item)}
+                                        className={`h-14 rounded-[18px] border px-4 inline-flex items-center text-left transition-all whitespace-nowrap ${
+                                            isSelected
+                                                ? 'border-[#171717] bg-[#171717] text-[#f7f2eb] shadow-[0_14px_24px_rgba(23,23,23,0.14)]'
+                                                : 'border-[#dad3ca] bg-white/88 text-[#27231f] shadow-[0_8px_18px_rgba(76,60,39,0.04)]'
+                                        }`}
+                                    >
+                                        <span className="text-[15px] font-medium tracking-[-0.02em]">{item}</span>
+                                    </button>
+                                );
+                            })}
+
+                            <button
+                                type="button"
+                                onClick={() => setIsCustomIndustryInputOpen((current) => !current)}
+                                className={`h-14 rounded-[18px] border px-4 inline-flex items-center gap-3 text-left transition-all whitespace-nowrap ${
+                                    isCustomIndustryInputOpen
+                                        ? 'border-[#7a684f] bg-[#ede4d7] text-[#171717]'
+                                        : 'border-dashed border-[#d3cabd] bg-[#f8f3ec] text-[#7f7365]'
+                                }`}
+                            >
+                                <span className="w-7 h-7 rounded-[10px] bg-white/80 border border-[#dfd4c6] flex items-center justify-center">
+                                    <Plus size={14} />
+                                </span>
+                                <span className="text-[15px] font-medium">自定义</span>
+                            </button>
+                        </div>
+
+                        {customIndustries.length > 0 && (
+                            <div className="mt-5">
+                                <div className="text-[11px] uppercase tracking-[0.16em] font-semibold text-[#9b948c]">已添加</div>
+                                <div className="mt-3 flex flex-wrap gap-3">
+                                    {customIndustries.map((item) => (
+                                        <div
+                                            key={item}
+                                            className="h-14 rounded-[18px] border border-[#171717] bg-[#171717] px-4 inline-flex items-center gap-3 text-[#f7f2eb] shadow-[0_14px_24px_rgba(23,23,23,0.14)]"
+                                        >
+                                            <span className="text-[15px] font-medium tracking-[-0.02em]">{item}</span>
+                                            <button
+                                                type="button"
+                                                onClick={() => removeIndustry(item)}
+                                                aria-label={`删除标签 ${item}`}
+                                                className="w-6 h-6 rounded-[10px] bg-white/10 border border-white/10 flex items-center justify-center"
+                                            >
+                                                <X size={12} />
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
                         )}
-                    </div>
-                    <p className="text-[12px] text-[#9b948c]">最多 10 个标签，单个标签不超过 10 个字。</p>
-                </div>
+
+                        <AnimatePresence initial={false}>
+                            {isCustomIndustryInputOpen && (
+                                <motion.div
+                                    initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 10 }}
+                                    animate={{
+                                        opacity: 1,
+                                        y: 0,
+                                        transition: {
+                                            duration: prefersReducedMotion ? 0 : 0.28,
+                                            ease: ONBOARDING_EASE,
+                                        },
+                                    }}
+                                    exit={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: -6, transition: { duration: 0.18 } }}
+                                    className="mt-5 rounded-[20px] border border-[#d9d1c5] bg-[#faf6f0] p-3"
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <input
+                                            value={industryInput}
+                                            maxLength={10}
+                                            onChange={(event) => setIndustryInput(event.target.value)}
+                                            onKeyDown={(event) => {
+                                                if (event.key === 'Enter') {
+                                                    event.preventDefault();
+                                                    addIndustry();
+                                                }
+                                            }}
+                                            placeholder="输入你的自定义标签"
+                                            className="flex-1 h-11 rounded-[14px] border border-[#e0d8cc] bg-white px-4 text-[14px] text-[#171717] outline-none placeholder:text-[#b7ac9c]"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={addIndustry}
+                                            className="w-11 h-11 rounded-[14px] bg-[#7a684f] text-[#f7f2eb] flex items-center justify-center shadow-[0_12px_22px_rgba(92,72,47,0.18)]"
+                                        >
+                                            <Plus size={16} />
+                                        </button>
+                                    </div>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                    </OnboardingField>
+                </motion.div>
             ),
         },
         {
@@ -541,12 +700,16 @@ export const MyCardPhoneView = ({
             title: '差不多啦，我再了解你一点点。',
             body: '你现在主要在做什么呢？有没有什么你特别希望别人了解的项目、产品，或者最近在推进的事情？',
             content: (
-                <textarea
-                    value={profile.notes}
-                    onChange={(event) => setProfile((current) => ({ ...current, notes: event.target.value.slice(0, 280) }))}
-                    placeholder="用几句话告诉 Moly，你现在在做什么、希望别人怎么认识你。"
-                    className="w-full min-h-[180px] rounded-[18px] border border-[#e6e0d8] bg-white px-4 py-4 text-[15px] leading-7 outline-none resize-none"
-                />
+                <motion.div {...getEnterProps(0.3)}>
+                    <OnboardingField label="你最近主要在做什么" hint="可以写项目、产品，或者希望别人怎么认识你。">
+                        <textarea
+                            value={profile.notes}
+                            onChange={(event) => setProfile((current) => ({ ...current, notes: event.target.value.slice(0, 280) }))}
+                            placeholder="用几句话告诉 Moly，你现在在做什么、希望别人怎么认识你。"
+                            className="w-full min-h-[220px] bg-transparent text-[18px] leading-8 text-[#171717] outline-none resize-none placeholder:text-[#b7ac9c]"
+                        />
+                    </OnboardingField>
+                </motion.div>
             ),
         },
         {
@@ -554,13 +717,14 @@ export const MyCardPhoneView = ({
             title: '我根据你刚才说的，帮你整理了三句适合放在名片首页的话。',
             body: '你看看，哪一句最像你？',
             content: (
-                <div className="space-y-3">
+                <div className="divide-y divide-[#ddd6cd] border-y border-[#ddd6cd]">
                     {headlineCandidates.map((headline) => {
                         const isSelected = profile.headline === headline;
                         return (
-                            <button
+                            <motion.button
                                 key={headline}
                                 type="button"
+                                {...getEnterProps(0.24 + headlineCandidates.indexOf(headline) * 0.08)}
                                 onClick={() => {
                                     if (headline.length > 25) {
                                         showToast('最多输入 25 个字符');
@@ -568,17 +732,22 @@ export const MyCardPhoneView = ({
                                     }
                                     setProfile((current) => ({ ...current, headline }));
                                 }}
-                                className={`w-full rounded-[18px] border px-4 py-4 text-left transition-all ${
-                                    isSelected
-                                        ? 'bg-[#7a684f] text-[#f7f2eb] border-[#7a684f] shadow-[0_16px_28px_rgba(104,85,58,0.14)]'
-                                        : 'bg-white text-[#171717] border-[#e6e0d8]'
-                                }`}
+                                className="w-full py-4 text-left"
                             >
-                                <div className="text-[16px] leading-7 font-medium">{headline}</div>
-                                <div className={`mt-2 text-[12px] ${isSelected ? 'text-[#efe7da]' : 'text-[#8a857f]'}`}>
-                                    {isSelected ? '已选中，将作为名片首页 headline' : '点击选择这句作为首页概括'}
+                                <div className="flex items-start justify-between gap-4">
+                                    <div className="min-w-0">
+                                        <div className={`text-[18px] leading-8 transition-colors ${isSelected ? 'text-[#171717]' : 'text-[#4f4a43]'}`}>{headline}</div>
+                                        <div className={`mt-2 text-[12px] ${isSelected ? 'text-[#7a684f]' : 'text-[#8a857f]'}`}>
+                                            {isSelected ? '已选中，将作为名片首页 headline' : '点击选择这句作为首页概括'}
+                                        </div>
+                                    </div>
+                                    <div className={`mt-1 w-6 h-6 rounded-full border flex items-center justify-center transition-colors ${
+                                        isSelected ? 'border-[#171717] bg-[#171717] text-[#f7f2eb]' : 'border-[#cfc6b8] bg-transparent text-transparent'
+                                    }`}>
+                                        <Check size={13} />
+                                    </div>
                                 </div>
-                            </button>
+                            </motion.button>
                         );
                     })}
                 </div>
@@ -678,55 +847,91 @@ export const MyCardPhoneView = ({
             )}
 
             {screenMode === 'onboarding' ? (
-                <div className="px-5 pb-16 pt-1 overflow-y-auto h-[calc(100%-96px)]">
-                    <div className="flex items-center gap-2 mb-4">
-                        {onboardingSteps.map((_, index) => (
-                            <div key={index} className={`h-1.5 flex-1 rounded-full ${index <= step ? 'bg-[#7a684f]' : 'bg-[#ddd7cf]'}`} />
-                        ))}
+                <>
+                    <div ref={onboardingScrollRef} className="px-5 pt-1 pb-[164px] overflow-y-auto h-[calc(100%-96px)]">
+                        <div className="sticky top-0 z-10 bg-[linear-gradient(180deg,#efe9df_0%,rgba(239,233,223,0.92)_75%,rgba(239,233,223,0)_100%)] pt-1 pb-5">
+                            <div className="flex items-center justify-between text-[11px] uppercase tracking-[0.18em] font-semibold text-[#9b948c]">
+                                <span>{currentStep.eyebrow}</span>
+                                <span>{step + 1} / {onboardingSteps.length}</span>
+                            </div>
+                            <div className="mt-3 flex items-center gap-2">
+                                {onboardingSteps.map((_, index) => (
+                                    <div key={index} className={`h-1.5 flex-1 rounded-full transition-colors ${index <= step ? 'bg-[#171717]' : 'bg-[#d7d0c6]'}`} />
+                                ))}
+                            </div>
+                        </div>
+
+                        <AnimatePresence mode="wait">
+                            <motion.div
+                                key={step}
+                                initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 12 }}
+                                animate={{
+                                    opacity: 1,
+                                    y: 0,
+                                    transition: {
+                                        duration: prefersReducedMotion ? 0 : 0.3,
+                                        ease: ONBOARDING_EASE,
+                                    },
+                                }}
+                                exit={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: -10, transition: { duration: 0.2, ease: [0.4, 0, 1, 1] } }}
+                                className="pb-8"
+                            >
+                                <motion.div {...getEnterProps(0.02)} className="max-w-[280px] text-[34px] leading-[1.04] font-semibold tracking-[-0.05em] text-[#171717]">
+                                    {currentStep.title}
+                                </motion.div>
+                                <motion.p {...getEnterProps(0.14)} className="mt-4 max-w-[308px] text-[15px] leading-7 text-[#6b665f]">
+                                    {currentStep.body}
+                                </motion.p>
+
+                                <div className="mt-10">{currentStep.content}</div>
+                            </motion.div>
+                        </AnimatePresence>
                     </div>
 
-                    <div className="relative rounded-[24px] border border-[#e6e0d8] bg-white px-5 pt-6 pb-20 shadow-[0_14px_40px_rgba(23,23,23,0.06)]">
-                        <div className="text-[11px] uppercase tracking-[0.18em] font-semibold text-[#9b948c]">{currentStep.eyebrow}</div>
-                        <div className="mt-3 text-[28px] leading-[1.15] font-semibold tracking-tight">{currentStep.title}</div>
-                        <p className="mt-3 text-[14px] leading-7 text-[#6b665f]">{currentStep.body}</p>
-
-                        <div className="mt-8">{currentStep.content}</div>
-
-                        <div className="mt-8 flex items-center justify-between">
+                    <div className="pointer-events-none absolute inset-x-0 bottom-0 h-36 bg-gradient-to-t from-[#efe9df] via-[#efe9df]/95 to-transparent" />
+                    <div className="absolute inset-x-0 bottom-0 z-20 px-5 pb-6">
+                        <div className="grid grid-cols-3 items-end gap-4">
                             {step > 0 ? (
                                 <button
                                     type="button"
                                     onClick={() => setStep((current) => current - 1)}
-                                    className="h-11 px-4 rounded-[14px] border border-[#e6e0d8] text-[14px] font-medium text-[#6b665f]"
+                                    aria-label="上一步"
+                                    title="上一步"
+                                    className="justify-self-start w-12 h-12 rounded-full border border-[#d7cebf] bg-[#f4eee5]/95 text-[#6b665f] backdrop-blur flex items-center justify-center shadow-[0_10px_24px_rgba(97,82,61,0.08)] transition-transform active:scale-[0.98]"
                                 >
-                                    上一步
+                                    <ArrowLeft size={18} />
                                 </button>
                             ) : (
-                                <div className="w-[88px]" />
+                                <div className="justify-self-start w-12 h-12" />
                             )}
+
+                            <button
+                                type="button"
+                                onClick={() => showToast('语音输入演示中')}
+                                aria-label="语音输入"
+                                title="语音输入"
+                                className="justify-self-center w-14 h-14 rounded-full border border-[#d9cebe] bg-[#f6f0e7] text-[#171717] shadow-[0_16px_28px_rgba(82,63,39,0.14)] flex items-center justify-center transition-transform active:scale-[0.98]"
+                            >
+                                <Mic size={19} strokeWidth={1.9} />
+                            </button>
 
                             <button
                                 type="button"
                                 onClick={nextFromOnboarding}
                                 disabled={isGeneratingHeadlines || isGeneratingTopics}
-                                className={`h-11 px-5 rounded-[14px] text-[14px] font-medium inline-flex items-center gap-2 ${
-                                    isGeneratingHeadlines || isGeneratingTopics ? 'bg-[#cbbda9] text-[#f7f2eb]' : 'bg-[#7a684f] text-[#f7f2eb]'
+                                aria-label={isGeneratingHeadlines ? '正在整理' : isGeneratingTopics ? '正在生成' : step === 4 ? '生成名片' : '下一步'}
+                                title={isGeneratingHeadlines ? '正在整理' : isGeneratingTopics ? '正在生成' : step === 4 ? '生成名片' : '下一步'}
+                                className={`justify-self-end w-14 h-14 rounded-full flex items-center justify-center shadow-[0_18px_32px_rgba(92,72,47,0.24)] transition-transform ${
+                                    isGeneratingHeadlines || isGeneratingTopics
+                                        ? 'bg-[#cbbda9] text-[#f7f2eb]'
+                                        : 'bg-[#7a684f] text-[#f7f2eb] active:scale-[0.98]'
                                 }`}
                             >
-                                {isGeneratingHeadlines ? '正在整理概括' : isGeneratingTopics ? '正在生成名片' : step === 4 ? '生成名片' : '下一步'}
                                 <ChevronRight size={16} />
                             </button>
                         </div>
-
-                        <button
-                            type="button"
-                            onClick={() => showToast('语音输入演示中')}
-                            className="absolute left-1/2 bottom-0 -translate-x-1/2 translate-y-1/2 w-14 h-14 rounded-full bg-[#f3eee7] border border-[#d8cbb9] text-[#7a684f] shadow-[0_10px_22px_rgba(122,104,79,0.16)] flex items-center justify-center"
-                        >
-                            <Mic size={20} strokeWidth={1.9} />
-                        </button>
                     </div>
-                </div>
+                </>
             ) : (
                 <div className="h-[calc(100%-84px)] overflow-y-auto">
                     <section className="min-h-[92vh] px-5 pt-8 pb-20 relative">
