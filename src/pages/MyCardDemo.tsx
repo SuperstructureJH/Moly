@@ -526,7 +526,7 @@ export const MyCardPhoneView = ({
                                 value={profile.name}
                                 onChange={(event) => setProfile((current) => ({ ...current, name: event.target.value.slice(0, 20) }))}
                                 placeholder="输入你的名字"
-                                className="w-full bg-transparent text-[32px] leading-[1.06] tracking-[-0.05em] text-[#171717] outline-none placeholder:text-[#9CA3AF]"
+                                className="w-full bg-transparent text-[22px] leading-[1.2] tracking-[-0.02em] text-[#171717] outline-none placeholder:text-[#9CA3AF]"
                             />
                         </OnboardingField>
                     </motion.div>
@@ -540,7 +540,7 @@ export const MyCardPhoneView = ({
                                 value={profile.address}
                                 onChange={(event) => setProfile((current) => ({ ...current, address: event.target.value.slice(0, 24) }))}
                                 placeholder="例如 北京朝阳"
-                                className="w-full bg-transparent text-[24px] leading-[1.15] tracking-[-0.03em] text-[#171717] outline-none placeholder:text-[#9CA3AF]"
+                                className="w-full bg-transparent text-[22px] leading-[1.2] tracking-[-0.02em] text-[#171717] outline-none placeholder:text-[#9CA3AF]"
                             />
                         </OnboardingField>
                     </motion.div>
@@ -559,7 +559,7 @@ export const MyCardPhoneView = ({
                                 value={profile.company}
                                 onChange={(event) => setProfile((current) => ({ ...current, company: event.target.value.slice(0, 30) }))}
                                 placeholder="公司"
-                                className="w-full bg-transparent text-[30px] leading-[1.08] tracking-[-0.04em] text-[#171717] outline-none placeholder:text-[#9CA3AF]"
+                                className="w-full bg-transparent text-[22px] leading-[1.2] tracking-[-0.02em] text-[#171717] outline-none placeholder:text-[#9CA3AF]"
                             />
                         </OnboardingField>
                     </motion.div>
@@ -570,7 +570,7 @@ export const MyCardPhoneView = ({
                                 value={profile.position}
                                 onChange={(event) => setProfile((current) => ({ ...current, position: event.target.value.slice(0, 30) }))}
                                 placeholder="职位"
-                                className="w-full bg-transparent text-[30px] leading-[1.08] tracking-[-0.04em] text-[#171717] outline-none placeholder:text-[#9CA3AF]"
+                                className="w-full bg-transparent text-[22px] leading-[1.2] tracking-[-0.02em] text-[#171717] outline-none placeholder:text-[#9CA3AF]"
                             />
                         </OnboardingField>
                     </motion.div>
