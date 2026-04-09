@@ -46,7 +46,7 @@ export function MeetingDetailScreen({ meeting, onBack, onUpdate, onDelete, playi
     return (
         <div className="flex flex-col h-full bg-[#f0f0f0] w-full isolate absolute inset-0 z-10">
             {/* 导航栏 */}
-            <div className="h-[44px] px-4 flex items-center justify-between bg-white shrink-0 relative pt-[54px] pb-[10px] box-content">
+            <div className="h-[44px] px-4 flex items-center justify-between bg-white shrink-0 relative pt-[36px] pb-[10px] box-content">
                 <button onClick={onBack} className="text-[34px] text-[#1a1a1a] font-light leading-none w-10 flex items-center mt-[-4px]">‹</button>
                 <div className="relative h-full flex items-center">
                     <button onClick={() => setShowMenu(!showMenu)} className="flex items-center gap-[3px] p-2 pr-0 opacity-80 mt-1">
@@ -193,7 +193,7 @@ export function MeetingDetailScreen({ meeting, onBack, onUpdate, onDelete, playi
                 <div className="h-[16px]"></div>
             </div>
 
-            <div className="shrink-0 pt-[8px] px-3 pb-[34px] bg-white border-t-[0.5px] border-[#ececec]">
+            <div className="shrink-0 pt-[8px] px-3 pb-[16px] bg-white border-t-[0.5px] border-[#ececec]">
                 <div className="flex items-center justify-center bg-[#f2f2f7] rounded-[22px] py-[12px] px-[20px] cursor-pointer active:bg-[#e8e8ed] transition-colors" onClick={() => setViewFrame('chat')}>
                     <span className="text-[15px] text-[#999]">基于这次会议提问...</span>
                 </div>
@@ -205,7 +205,7 @@ export function MeetingDetailScreen({ meeting, onBack, onUpdate, onDelete, playi
 function TranscriptScreen({ meeting, onBack, isPlaying, onTogglePlay }) {
     return (
         <div className="flex flex-col h-full bg-white relative isolate overflow-hidden w-full z-50 absolute inset-0">
-            <div className="h-[44px] px-4 flex items-center justify-between bg-white shrink-0 relative pt-[54px] pb-[10px] box-content border-b-[0.5px] border-[#ececec]">
+            <div className="h-[44px] px-4 flex items-center justify-between bg-white shrink-0 relative pt-[36px] pb-[10px] box-content border-b-[0.5px] border-[#ececec]">
                 <button onClick={onBack} className="text-[34px] text-[#1a1a1a] font-light leading-none w-10 flex items-center mt-[-4px]">‹</button>
                 <div className="text-[16px] font-semibold text-[#1a1a1a]">转录全文</div>
                 <div className="w-10"></div>
@@ -277,9 +277,9 @@ function ChatScreen({ meeting, onBack, onAttach }) {
 
     return (
         <div className="flex flex-col h-full bg-[#f5f5f5] w-full isolate z-[100] absolute inset-0">
-            <div className="h-[44px] px-4 flex items-center justify-between bg-white shrink-0 pt-[54px] pb-[10px] box-content border-b-[0.5px] border-[#e5e5e5] relative">
+            <div className="h-[44px] px-4 flex items-center justify-between bg-white shrink-0 pt-[36px] pb-[10px] box-content border-b-[0.5px] border-[#e5e5e5] relative">
                 <button onClick={onBack} className="text-[34px] text-[#1a1a1a] font-light leading-none w-10 flex items-center mt-[-4px]">‹</button>
-                <div className="absolute left-14 right-14 top-[54px] text-center text-[16px] font-semibold text-[#1a1a1a] truncate z-0">{meeting.title || 'AI 产品路线图讨论'}</div>
+                <div className="absolute left-14 right-14 top-[36px] text-center text-[16px] font-semibold text-[#1a1a1a] truncate z-0">{meeting.title || 'AI 产品路线图讨论'}</div>
             </div>
 
             <div ref={scrollRef} className="flex-1 overflow-y-auto p-[16px] flex flex-col relative z-10 touch-pan-y">
@@ -322,7 +322,7 @@ function ChatScreen({ meeting, onBack, onAttach }) {
                 )}
             </div>
 
-            <div className="px-4 pt-[10px] pb-[34px] bg-white flex items-end gap-[10px] shrink-0 border-t-[0.5px] border-[#ececec]">
+            <div className="px-4 pt-[10px] pb-[16px] bg-white flex items-end gap-[10px] shrink-0 border-t-[0.5px] border-[#ececec]">
                 <textarea 
                     value={input}
                     onChange={e=>setInput(e.target.value)}
