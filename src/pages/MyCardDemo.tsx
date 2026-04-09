@@ -205,7 +205,6 @@ export const MyCardPhoneView = ({
     const [toast, setToast] = useState('');
     const [polishState, setPolishState] = useState<PolishState>('idle');
     const [prePolishProfile, setPrePolishProfile] = useState<DigitalCardProfile | null>(null);
-    const [isLocatingAddress, setIsLocatingAddress] = useState(false);
     const [isGeneratingRecommendations, setIsGeneratingRecommendations] = useState(false);
     const [isCustomIndustryInputOpen, setIsCustomIndustryInputOpen] = useState(false);
 
@@ -280,27 +279,6 @@ export const MyCardPhoneView = ({
     useEffect(() => {
         onScreenModeChange?.(screenMode);
     }, [screenMode, onScreenModeChange]);
-
-    useEffect(() => {
-        if (screenMode !== 'onboarding' || step !== 0 || profile.address || typeof navigator === 'undefined' || !navigator.geolocation) {
-            return;
-        }
-
-        setIsLocatingAddress(true);
-        navigator.geolocation.getCurrentPosition(
-            ({ coords }) => {
-                setProfile((current) => ({
-                    ...current,
-                    address: current.address || `当前位置 ${coords.latitude.toFixed(2)}, ${coords.longitude.toFixed(2)}`,
-                }));
-                setIsLocatingAddress(false);
-            },
-            () => {
-                setIsLocatingAddress(false);
-            },
-            { enableHighAccuracy: false, timeout: 5000, maximumAge: 600000 },
-        );
-    }, [screenMode, step, profile.address]);
 
     useEffect(() => {
         return () => {
@@ -557,7 +535,6 @@ export const MyCardPhoneView = ({
                         <OnboardingField
                             label="所在地区"
                             icon={<MapPin size={13} strokeWidth={1.8} />}
-                            hint={isLocatingAddress ? '正在获取当前位置…' : undefined}
                         >
                             <input
                                 value={profile.address}
