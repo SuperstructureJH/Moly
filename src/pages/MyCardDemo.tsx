@@ -91,7 +91,7 @@ const HeroTextField = ({
                 onChange={(event) => onChange(event.target.value)}
                 placeholder={placeholder}
                 className={`${className} w-full bg-transparent resize-none outline-none border-b border-[#D1D5DB] pb-2 placeholder:text-[#9CA3AF]`}
-                rows={2}
+                rows={4}
             />
         );
     }
@@ -626,8 +626,8 @@ export const MyCardPhoneView = ({
                                 type="button"
                                 {...getEnterProps(0.24 + headlineCandidates.indexOf(headline) * 0.08)}
                                 onClick={() => {
-                                    if (headline.length > 36) {
-                                        showToast('最多输入 36 个字符');
+                                    if (headline.length > 300) {
+                                        showToast('最多输入 300 个字符');
                                         return;
                                     }
                                     setProfile((current) => ({ ...current, headline }));
@@ -1003,13 +1003,13 @@ export const MyCardPhoneView = ({
                                     style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
                                     highlighted={polishState === 'preview' && isFieldHighlighted('headline', profile, prePolishProfile)}
                                     onChange={(value) => {
-                                        if (value.length > 36) {
-                                            showToast('最多输入 36 个字符');
+                                        if (value.length > 300) {
+                                            showToast('最多输入 300 个字符');
                                             return;
                                         }
                                         setProfile((current) => ({ ...current, headline: value }));
                                     }}
-                                    maxLength={36}
+                                    maxLength={300}
                                     multiline
                                 />
                             </div>
