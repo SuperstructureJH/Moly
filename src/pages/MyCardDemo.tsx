@@ -557,7 +557,7 @@ export const MyCardPhoneView = ({
                         <OnboardingField
                             label="所在地区"
                             icon={<MapPin size={13} strokeWidth={1.8} />}
-                            hint={isLocatingAddress ? '正在获取当前位置…' : '会优先尝试自动填入实时位置，拿不到时可后续补充。'}
+                            hint={isLocatingAddress ? '正在获取当前位置…' : undefined}
                         >
                             <input
                                 value={profile.address}
@@ -606,14 +606,14 @@ export const MyCardPhoneView = ({
             body: '你现在主要在做什么呢？有没有什么你特别希望别人了解的项目、产品，或者最近在推进的事情？',
             content: (
                 <motion.div {...getEnterProps(0.3)}>
-                    <OnboardingField label="你最近主要在做什么" hint="可以写项目、产品，或者希望别人怎么认识你。">
+                    <div className="border-b border-[#E5E7EB] pb-5">
                         <textarea
                             value={profile.notes}
                             onChange={(event) => setProfile((current) => ({ ...current, notes: event.target.value.slice(0, 280) }))}
                             placeholder="用几句话告诉 Moly，你现在在做什么、希望别人怎么认识你。"
                             className="w-full min-h-[220px] bg-transparent text-[18px] leading-8 text-[#171717] outline-none resize-none placeholder:text-[#b7ac9c]"
                         />
-                    </OnboardingField>
+                    </div>
                 </motion.div>
             ),
         },
