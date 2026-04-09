@@ -548,7 +548,7 @@ export const MyCardPhoneView = ({
                                 value={profile.name}
                                 onChange={(event) => setProfile((current) => ({ ...current, name: event.target.value.slice(0, 20) }))}
                                 placeholder="输入你的名字"
-                                className="w-full bg-transparent text-[32px] leading-[1.06] tracking-[-0.05em] text-[#171717] outline-none placeholder:text-[#c8bcad]"
+                                className="w-full bg-transparent text-[32px] leading-[1.06] tracking-[-0.05em] text-[#171717] outline-none placeholder:text-[#9CA3AF]"
                             />
                         </OnboardingField>
                     </motion.div>
@@ -563,7 +563,7 @@ export const MyCardPhoneView = ({
                                 value={profile.address}
                                 onChange={(event) => setProfile((current) => ({ ...current, address: event.target.value.slice(0, 24) }))}
                                 placeholder="例如 北京朝阳"
-                                className="w-full bg-transparent text-[24px] leading-[1.15] tracking-[-0.03em] text-[#171717] outline-none placeholder:text-[#c8bcad]"
+                                className="w-full bg-transparent text-[24px] leading-[1.15] tracking-[-0.03em] text-[#171717] outline-none placeholder:text-[#9CA3AF]"
                             />
                         </OnboardingField>
                     </motion.div>
@@ -582,7 +582,7 @@ export const MyCardPhoneView = ({
                                 value={profile.company}
                                 onChange={(event) => setProfile((current) => ({ ...current, company: event.target.value.slice(0, 30) }))}
                                 placeholder="公司"
-                                className="w-full bg-transparent text-[30px] leading-[1.08] tracking-[-0.04em] text-[#171717] outline-none placeholder:text-[#c8bcad]"
+                                className="w-full bg-transparent text-[30px] leading-[1.08] tracking-[-0.04em] text-[#171717] outline-none placeholder:text-[#9CA3AF]"
                             />
                         </OnboardingField>
                     </motion.div>
@@ -593,7 +593,7 @@ export const MyCardPhoneView = ({
                                 value={profile.position}
                                 onChange={(event) => setProfile((current) => ({ ...current, position: event.target.value.slice(0, 30) }))}
                                 placeholder="职位"
-                                className="w-full bg-transparent text-[30px] leading-[1.08] tracking-[-0.04em] text-[#171717] outline-none placeholder:text-[#c8bcad]"
+                                className="w-full bg-transparent text-[30px] leading-[1.08] tracking-[-0.04em] text-[#171717] outline-none placeholder:text-[#9CA3AF]"
                             />
                         </OnboardingField>
                     </motion.div>
@@ -611,7 +611,7 @@ export const MyCardPhoneView = ({
                             value={profile.notes}
                             onChange={(event) => setProfile((current) => ({ ...current, notes: event.target.value.slice(0, 280) }))}
                             placeholder="用几句话告诉Moly关于你的事情吧～"
-                            className="w-full min-h-[220px] bg-transparent text-[18px] leading-8 text-[#171717] outline-none resize-none placeholder:text-[#b7ac9c]"
+                            className="w-full min-h-[220px] bg-transparent text-[18px] leading-8 text-[#171717] outline-none resize-none placeholder:text-[#9CA3AF]"
                         />
                     </div>
                 </motion.div>
@@ -622,7 +622,7 @@ export const MyCardPhoneView = ({
             title: '我帮你整理了三句更适合放在名片首页的话。',
             body: '选一句最像你、也最让人想继续了解你的。',
             content: (
-                <div className="divide-y divide-[#ddd6cd] border-y border-[#ddd6cd]">
+                <div className="divide-y divide-[#E5E7EB] border-y border-[#E5E7EB]">
                     {headlineCandidates.map((headline) => {
                         const isSelected = profile.headline === headline;
                         return (
@@ -641,10 +641,10 @@ export const MyCardPhoneView = ({
                             >
                                 <div className="flex items-start justify-between gap-4">
                                     <div className="min-w-0">
-                                        <div className={`text-[18px] leading-8 transition-colors ${isSelected ? 'text-[#171717]' : 'text-[#4f4a43]'}`}>{headline}</div>
+                                        <div className={`text-[18px] leading-8 transition-colors ${isSelected ? 'text-[#171717]' : 'text-[#4B5563]'}`}>{headline}</div>
                                     </div>
                                     <div className={`mt-1 w-6 h-6 rounded-full border flex items-center justify-center transition-colors ${
-                                        isSelected ? 'border-[#171717] bg-[#171717] text-[#f7f2eb]' : 'border-[#cfc6b8] bg-transparent text-transparent'
+                                        isSelected ? 'border-[#171717] bg-[#171717] text-[#ffffff]' : 'border-[#D1D5DB] bg-transparent text-transparent'
                                     }`}>
                                         <Check size={13} />
                                     </div>
@@ -672,8 +672,8 @@ export const MyCardPhoneView = ({
                                         onClick={() => toggleIndustry(item)}
                                         className={`h-10 rounded-[14px] border px-3 inline-flex items-center text-left transition-all whitespace-nowrap ${
                                             isSelected
-                                                ? 'border-[#171717] bg-[#171717] text-[#f7f2eb] shadow-[0_14px_24px_rgba(23,23,23,0.14)]'
-                                                : 'border-[#dad3ca] bg-white/88 text-[#27231f] shadow-[0_8px_18px_rgba(76,60,39,0.04)]'
+                                                ? 'border-[#171717] bg-[#171717] text-[#ffffff] shadow-[0_14px_24px_rgba(23,23,23,0.14)]'
+                                                : 'border-[#E5E7EB] bg-white/88 text-[#1F2937] shadow-[0_8px_18px_rgba(0,0,0,0.04)]'
                                         }`}
                                     >
                                         <span className="text-[13px] font-medium">{item}</span>
@@ -686,11 +686,11 @@ export const MyCardPhoneView = ({
                                 onClick={() => setIsCustomIndustryInputOpen((current) => !current)}
                                 className={`h-10 rounded-[14px] border px-3 inline-flex items-center gap-2 text-left transition-all whitespace-nowrap ${
                                     isCustomIndustryInputOpen
-                                        ? 'border-[#7a684f] bg-[#ede4d7] text-[#171717]'
-                                        : 'border-dashed border-[#d3cabd] bg-[#f8f3ec] text-[#7f7365]'
+                                        ? 'border-[#111827] bg-[#F3F4F6] text-[#171717]'
+                                        : 'border-dashed border-[#D1D5DB] bg-[#F9FAFB] text-[#6B7280]'
                                 }`}
                             >
-                                <span className="w-5 h-5 rounded-[8px] bg-white/80 border border-[#dfd4c6] flex items-center justify-center">
+                                <span className="w-5 h-5 rounded-[8px] bg-white/80 border border-[#E5E7EB] flex items-center justify-center">
                                     <Plus size={12} />
                                 </span>
                                 <span className="text-[13px] font-medium">自定义</span>
@@ -699,12 +699,12 @@ export const MyCardPhoneView = ({
 
                         {customIndustries.length > 0 && (
                             <div className="mt-5">
-                                <div className="text-[11px] uppercase tracking-[0.16em] font-semibold text-[#9b948c]">已添加</div>
+                                <div className="text-[11px] uppercase tracking-[0.16em] font-semibold text-[#9CA3AF]">已添加</div>
                                 <div className="mt-3 flex flex-wrap gap-2.5">
                                     {customIndustries.map((item) => (
                                         <div
                                             key={item}
-                                            className="h-10 rounded-[14px] border border-[#171717] bg-[#171717] px-3 inline-flex items-center gap-2 text-[#f7f2eb] shadow-[0_14px_24px_rgba(23,23,23,0.14)]"
+                                            className="h-10 rounded-[14px] border border-[#171717] bg-[#171717] px-3 inline-flex items-center gap-2 text-[#ffffff] shadow-[0_14px_24px_rgba(23,23,23,0.14)]"
                                         >
                                             <span className="text-[13px] font-medium">{item}</span>
                                             <button
@@ -734,7 +734,7 @@ export const MyCardPhoneView = ({
                                         },
                                     }}
                                     exit={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: -6, transition: { duration: 0.18 } }}
-                                    className="mt-5 rounded-[20px] border border-[#d9d1c5] bg-[#faf6f0] p-3"
+                                    className="mt-5 rounded-[20px] border border-[#E5E7EB] bg-[#F9FAFB] p-3"
                                 >
                                     <div className="flex items-center gap-3">
                                         <input
@@ -748,12 +748,12 @@ export const MyCardPhoneView = ({
                                                 }
                                             }}
                                             placeholder="输入你的自定义标签"
-                                            className="flex-1 h-11 rounded-[14px] border border-[#e0d8cc] bg-white px-4 text-[14px] text-[#171717] outline-none placeholder:text-[#b7ac9c]"
+                                            className="flex-1 h-11 rounded-[14px] border border-[#E5E7EB] bg-white px-4 text-[14px] text-[#171717] outline-none placeholder:text-[#9CA3AF]"
                                         />
                                         <button
                                             type="button"
                                             onClick={addIndustry}
-                                            className="w-11 h-11 rounded-[14px] bg-[#7a684f] text-[#f7f2eb] flex items-center justify-center shadow-[0_12px_22px_rgba(92,72,47,0.18)]"
+                                            className="w-11 h-11 rounded-[14px] bg-[#111827] text-[#ffffff] flex items-center justify-center shadow-[0_12px_22px_rgba(0,0,0,0.18)]"
                                         >
                                             <Plus size={16} />
                                         </button>
@@ -762,9 +762,7 @@ export const MyCardPhoneView = ({
                             )}
                         </AnimatePresence>
 
-                        <div className="mt-5 text-[12px] leading-5 text-[#9b948c]">
-                            这些标签会出现在名片里，用来让别人更快理解你，选几个最贴近你的就好。
-                        </div>
+                        
                     </OnboardingField>
                 </motion.div>
             ),
@@ -921,7 +919,7 @@ export const MyCardPhoneView = ({
                                 <motion.div {...getEnterProps(0.02)} className="max-w-[280px] text-[34px] leading-[1.04] font-semibold tracking-[-0.05em] text-[#171717]">
                                     {displayedStep.title}
                                 </motion.div>
-                                <motion.p {...getEnterProps(0.14)} className="mt-4 max-w-[308px] text-[15px] leading-7 text-[#6b665f]">
+                                <motion.p {...getEnterProps(0.14)} className="mt-4 max-w-[308px] text-[15px] leading-7 text-[#6B7280]">
                                     {displayedStep.body}
                                 </motion.p>
 
@@ -1067,7 +1065,7 @@ export const MyCardPhoneView = ({
                                 <div className="text-[40px] leading-none text-[#d8d0c5]" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>03</div>
                                 <div className="mt-1 text-[10px] uppercase tracking-[0.22em] font-semibold text-[#8d7d68]">Contact Coordinates</div>
                             </div>
-                            <div className="text-[12px] text-[#9b948c]">
+                            <div className="text-[12px] text-[#9CA3AF]">
                                 {savedProfile?.updatedAt ? `更新于 ${new Date(savedProfile.updatedAt).toLocaleDateString('zh-CN')}` : '草稿中'}
                             </div>
                         </div>
@@ -1111,7 +1109,7 @@ export const MyCardPhoneView = ({
                             />
 
                             <div className="grid grid-cols-[28px_74px_1fr] gap-3 items-start py-4 border-b border-[#f1ede8]">
-                                <div className="w-7 h-7 rounded-[10px] bg-[#f6f3ef] border border-[#ece7e1] flex items-center justify-center text-[#6b665f]">
+                                <div className="w-7 h-7 rounded-[10px] bg-[#f6f3ef] border border-[#ece7e1] flex items-center justify-center text-[#6B7280]">
                                     <Tag size={15} strokeWidth={1.8} />
                                 </div>
                                 <div className="pt-1 text-[12px] font-medium text-[#8a857f]">行业标签</div>
@@ -1121,7 +1119,7 @@ export const MyCardPhoneView = ({
                                             <div key={item} className="inline-flex items-center gap-2 rounded-full border border-[#dcd6cf] bg-white px-3 py-1.5 text-[13px] text-[#171717]">
                                                 {item}
                                                 {screenMode === 'editing' && (
-                                                    <button type="button" onClick={() => removeIndustry(item)} className="text-[#9b948c]">
+                                                    <button type="button" onClick={() => removeIndustry(item)} className="text-[#9CA3AF]">
                                                         <X size={12} />
                                                     </button>
                                                 )}
@@ -1142,7 +1140,7 @@ export const MyCardPhoneView = ({
                                                     placeholder="+ 添加标签"
                                                     className="h-9 px-3 rounded-full border border-dashed border-[#dcd6cf] bg-white text-[13px] outline-none min-w-[110px]"
                                                 />
-                                                <button type="button" onClick={addIndustry} className="w-9 h-9 rounded-full bg-[#7a684f] text-[#f7f2eb] flex items-center justify-center">
+                                                <button type="button" onClick={addIndustry} className="w-9 h-9 rounded-full bg-[#111827] text-[#ffffff] flex items-center justify-center">
                                                     <Plus size={15} />
                                                 </button>
                                             </div>
