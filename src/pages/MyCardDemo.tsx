@@ -163,16 +163,27 @@ const OnboardingField = ({
     children,
     hint,
     icon,
+    currentLength,
+    maxLength,
 }: {
     label: string;
     children: React.ReactNode;
     hint?: React.ReactNode;
     icon?: React.ReactNode;
+    currentLength?: number;
+    maxLength?: number;
 }) => (
-    <div className="border-b border-[#E5E7EB] pb-5">
-        <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.18em] font-semibold text-[#6B7280]">
-            {icon ? <span className="text-[#9CA3AF]">{icon}</span> : null}
-            <span>{label}</span>
+    <div className="border-b border-[#E5E7EB] pb-4">
+        <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.18em] font-semibold text-[#6B7280]">
+                {icon ? <span className="text-[#9CA3AF]">{icon}</span> : null}
+                <span>{label}</span>
+            </div>
+            {typeof currentLength === 'number' && typeof maxLength === 'number' && currentLength > 0 ? (
+                <div className={`text-[10px] tracking-[0.05em] font-medium transition-colors ${currentLength >= maxLength ? 'text-[#ef4444]' : 'text-[#9CA3AF]'}`}>
+                    {currentLength}<span className="text-[#D1D5DB] font-light"> / {maxLength}</span>
+                </div>
+            ) : null}
         </div>
         <div className="mt-3">{children}</div>
         {hint ? <div className="mt-3 text-[12px] leading-5 text-[#6B7280]">{hint}</div> : null}
@@ -521,7 +532,7 @@ export const MyCardPhoneView = ({
             content: (
                 <div className="space-y-6">
                     <motion.div {...getEnterProps(0.3)}>
-                        <OnboardingField label="怎么称呼你">
+                        <OnboardingField label="怎么称呼你" currentLength={profile.name.length} maxLength={20}>
                             <input
                                 value={profile.name}
                                 onChange={(event) => setProfile((current) => ({ ...current, name: event.target.value.slice(0, 20) }))}
@@ -535,6 +546,8 @@ export const MyCardPhoneView = ({
                         <OnboardingField
                             label="所在地区"
                             icon={<MapPin size={13} strokeWidth={1.8} />}
+                            currentLength={profile.address.length}
+                            maxLength={24}
                         >
                             <input
                                 value={profile.address}
@@ -554,7 +567,7 @@ export const MyCardPhoneView = ({
             content: (
                 <div className="space-y-6">
                     <motion.div {...getEnterProps(0.28)}>
-                        <OnboardingField label="你在哪家公司">
+                        <OnboardingField label="你在哪家公司" currentLength={profile.company.length} maxLength={30}>
                             <input
                                 value={profile.company}
                                 onChange={(event) => setProfile((current) => ({ ...current, company: event.target.value.slice(0, 30) }))}
@@ -565,7 +578,7 @@ export const MyCardPhoneView = ({
                     </motion.div>
 
                     <motion.div {...getEnterProps(0.4)}>
-                        <OnboardingField label="你负责什么角色">
+                        <OnboardingField label="你负责什么角色" currentLength={profile.position.length} maxLength={30}>
                             <input
                                 value={profile.position}
                                 onChange={(event) => setProfile((current) => ({ ...current, position: event.target.value.slice(0, 30) }))}
@@ -583,13 +596,18 @@ export const MyCardPhoneView = ({
             body: '你现在主要在做什么呢？有没有什么你特别希望别人了解的项目、产品，或者最近在推进的事情？',
             content: (
                 <motion.div {...getEnterProps(0.3)}>
-                    <div className="border-b border-[#E5E7EB] pb-5">
+                    <div className="border-b border-[#E5E7EB] pb-4 relative">
                         <textarea
                             value={profile.notes}
                             onChange={(event) => setProfile((current) => ({ ...current, notes: event.target.value.slice(0, 280) }))}
                             placeholder="用几句话告诉Moly关于你的事情吧～"
                             className="w-full min-h-[220px] bg-transparent text-[18px] leading-8 text-[#171717] outline-none resize-none placeholder:text-[#9CA3AF]"
                         />
+                        {profile.notes.length > 0 && (
+                            <div className={`absolute bottom-3 right-0 text-[10px] tracking-[0.05em] font-medium transition-colors ${profile.notes.length >= 280 ? 'text-[#ef4444]' : 'text-[#9CA3AF]'}`}>
+                                {profile.notes.length}<span className="text-[#D1D5DB] font-light"> / 280</span>
+                            </div>
+                        )}
                     </div>
                 </motion.div>
             ),
