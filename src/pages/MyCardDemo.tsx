@@ -547,11 +547,11 @@ export const MyCardPhoneView = ({
                             label="所在地区"
                             icon={<MapPin size={13} strokeWidth={1.8} />}
                             currentLength={profile.address.length}
-                            maxLength={24}
+                            maxLength={30}
                         >
                             <input
                                 value={profile.address}
-                                onChange={(event) => setProfile((current) => ({ ...current, address: event.target.value.slice(0, 24) }))}
+                                onChange={(event) => setProfile((current) => ({ ...current, address: event.target.value.slice(0, 30) }))}
                                 placeholder="例如 北京朝阳"
                                 className="w-full bg-transparent text-[22px] leading-[1.2] tracking-[-0.02em] text-[#171717] outline-none placeholder:text-[#9CA3AF]"
                             />
