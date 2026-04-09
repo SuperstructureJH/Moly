@@ -599,13 +599,13 @@ export const MyCardPhoneView = ({
                     <div className="border-b border-[#E5E7EB] pb-4 relative">
                         <textarea
                             value={profile.notes}
-                            onChange={(event) => setProfile((current) => ({ ...current, notes: event.target.value.slice(0, 280) }))}
+                            onChange={(event) => setProfile((current) => ({ ...current, notes: event.target.value.slice(0, 300) }))}
                             placeholder="用几句话告诉Moly关于你的事情吧～"
                             className="w-full min-h-[220px] bg-transparent text-[18px] leading-8 text-[#171717] outline-none resize-none placeholder:text-[#9CA3AF]"
                         />
                         {profile.notes.length > 0 && (
-                            <div className={`absolute bottom-3 right-0 text-[10px] tracking-[0.05em] font-medium transition-colors ${profile.notes.length >= 280 ? 'text-[#ef4444]' : 'text-[#9CA3AF]'}`}>
-                                {profile.notes.length}<span className="text-[#D1D5DB] font-light"> / 280</span>
+                            <div className={`absolute bottom-3 right-0 text-[10px] tracking-[0.05em] font-medium transition-colors ${profile.notes.length >= 300 ? 'text-[#ef4444]' : 'text-[#9CA3AF]'}`}>
+                                {profile.notes.length}<span className="text-[#D1D5DB] font-light"> / 300</span>
                             </div>
                         )}
                     </div>
