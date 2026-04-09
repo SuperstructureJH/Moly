@@ -44,7 +44,7 @@ export function MeetingDetailScreen({ meeting, onBack, onUpdate, onDelete, playi
     }
 
     return (
-        <div className="flex flex-col h-full bg-[#f0f0f0] w-full isolate fixed inset-0 z-[100]">
+        <div className="flex flex-col h-full bg-[#f0f0f0] w-full isolate absolute inset-0 z-[100]">
             {/* 导航栏 */}
             <div className="h-[44px] px-4 flex items-center justify-between bg-white shrink-0 relative pt-[36px] pb-[10px] box-content">
                 <button onClick={onBack} className="text-[34px] text-[#1a1a1a] font-light leading-none w-10 flex items-center mt-[-4px]">‹</button>
@@ -204,7 +204,7 @@ export function MeetingDetailScreen({ meeting, onBack, onUpdate, onDelete, playi
 
 function TranscriptScreen({ meeting, onBack, isPlaying, onTogglePlay }) {
     return (
-        <div className="flex flex-col h-full bg-white relative isolate overflow-hidden w-full fixed inset-0 z-[100]">
+        <div className="flex flex-col h-full bg-white relative isolate overflow-hidden w-full absolute inset-0 z-[100]">
             <div className="h-[44px] px-4 flex items-center justify-between bg-white shrink-0 relative pt-[36px] pb-[10px] box-content border-b-[0.5px] border-[#ececec]">
                 <button onClick={onBack} className="text-[34px] text-[#1a1a1a] font-light leading-none w-10 flex items-center mt-[-4px]">‹</button>
                 <div className="text-[16px] font-semibold text-[#1a1a1a]">转录全文</div>
@@ -276,7 +276,7 @@ function ChatScreen({ meeting, onBack, onAttach }) {
     };
 
     return (
-        <div className="flex flex-col h-full bg-[#f5f5f5] w-full isolate fixed inset-0 z-[100]">
+        <div className="flex flex-col h-full bg-[#f5f5f5] w-full isolate absolute inset-0 z-[100]">
             <div className="h-[44px] px-4 flex items-center justify-between bg-white shrink-0 pt-[36px] pb-[10px] box-content border-b-[0.5px] border-[#e5e5e5] relative">
                 <button onClick={onBack} className="text-[34px] text-[#1a1a1a] font-light leading-none w-10 flex items-center mt-[-4px]">‹</button>
                 <div className="absolute left-14 right-14 top-[36px] text-center text-[16px] font-semibold text-[#1a1a1a] truncate z-0">{meeting.title || 'AI 产品路线图讨论'}</div>
