@@ -23,13 +23,14 @@ import {
     DEMO_COMPLETED_PROFILE,
     EMPTY_PROFILE,
     generateHeadlineCandidates,
+    generateIndustrySuggestions,
+    generateOnboardingRecommendationsWithAI,
+    generateTopics,
     getProfileStatus,
     MY_CARD_DRAFT_KEY,
     MY_CARD_STORAGE_KEY,
     MyCardDraft,
     normalizeIndustries,
-    generateHeadlineCandidatesWithAI,
-    generateTopicsWithAI,
     polishProfileCopyWithAI,
     readStoredJson,
     removeStoredJson,
@@ -75,7 +76,7 @@ const HeroTextField = ({
 }) => {
     if (!editing) {
         return (
-            <div style={style} className={`${className} ${highlighted ? 'bg-[#eef1ff] px-2 py-1 rounded-[10px]' : ''}`}>
+            <div style={style} className={`${className} ${highlighted ? 'bg-[#F3F4F6] px-2 py-1 rounded-[10px]' : ''}`}>
                 {value || placeholder}
             </div>
         );
@@ -89,7 +90,7 @@ const HeroTextField = ({
                 style={style}
                 onChange={(event) => onChange(event.target.value)}
                 placeholder={placeholder}
-                className={`${className} w-full bg-transparent resize-none outline-none border-b border-[#b6a389] pb-2 placeholder:text-[#8d7d68]`}
+                className={`${className} w-full bg-transparent resize-none outline-none border-b border-[#D1D5DB] pb-2 placeholder:text-[#9CA3AF]`}
                 rows={2}
             />
         );
@@ -102,7 +103,7 @@ const HeroTextField = ({
             style={style}
             onChange={(event) => onChange(event.target.value)}
             placeholder={placeholder}
-            className={`${className} w-full bg-transparent outline-none border-b border-[#b6a389] pb-2 placeholder:text-[#8d7d68]`}
+            className={`${className} w-full bg-transparent outline-none border-b border-[#D1D5DB] pb-2 placeholder:text-[#9CA3AF]`}
         />
     );
 };
@@ -126,30 +127,30 @@ const BaseInfoRow = ({
     highlighted?: boolean;
     multiline?: boolean;
 }) => (
-    <div className="grid grid-cols-[28px_74px_1fr] gap-3 items-start py-4 border-b border-[#f1ede8] last:border-b-0">
-        <div className="w-7 h-7 rounded-[10px] bg-[#f6f3ef] border border-[#ece7e1] flex items-center justify-center text-[#6b665f]">
+    <div className="grid grid-cols-[28px_74px_1fr] gap-3 items-start py-4 border-b border-[#E5E7EB] last:border-b-0">
+        <div className="w-7 h-7 rounded-[10px] bg-[#F9FAFB] border border-[#E5E7EB] flex items-center justify-center text-[#6B7280]">
             {icon}
         </div>
-        <div className="pt-1 text-[12px] font-medium text-[#8a857f]">{label}</div>
+        <div className="pt-1 text-[12px] font-medium text-[#6B7280]">{label}</div>
         {editing ? (
             multiline ? (
                 <textarea
                     value={value}
                     onChange={(event) => onChange(event.target.value)}
                     placeholder={placeholder}
-                    className="min-h-[88px] w-full resize-none bg-transparent text-[14px] leading-6 text-[#171717] outline-none border-b border-[#d8d2cb] pb-2 placeholder:text-[#b3aca4]"
+                    className="min-h-[88px] w-full resize-none bg-transparent text-[14px] leading-6 text-[#171717] outline-none border-b border-[#E5E7EB] pb-2 placeholder:text-[#9CA3AF]"
                 />
             ) : (
                 <input
                     value={value}
                     onChange={(event) => onChange(event.target.value)}
                     placeholder={placeholder}
-                    className="w-full bg-transparent text-[14px] leading-6 text-[#171717] outline-none border-b border-[#d8d2cb] pb-2 placeholder:text-[#b3aca4]"
+                    className="w-full bg-transparent text-[14px] leading-6 text-[#171717] outline-none border-b border-[#E5E7EB] pb-2 placeholder:text-[#9CA3AF]"
                 />
             )
         ) : (
-            <div className={`pt-1 text-[14px] leading-6 text-[#171717] ${highlighted ? 'bg-[#eef1ff] rounded-[10px] px-2 py-1 -ml-2' : ''}`}>
-                {value || <span className="text-[#b3aca4]">{placeholder}</span>}
+            <div className={`pt-1 text-[14px] leading-6 text-[#171717] ${highlighted ? 'bg-[#F3F4F6] rounded-[10px] px-2 py-1 -ml-2' : ''}`}>
+                {value || <span className="text-[#9CA3AF]">{placeholder}</span>}
             </div>
         )}
     </div>
@@ -168,13 +169,13 @@ const OnboardingField = ({
     hint?: React.ReactNode;
     icon?: React.ReactNode;
 }) => (
-    <div className="border-b border-[#ddd6cd] pb-5">
-        <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.18em] font-semibold text-[#9b948c]">
-            {icon ? <span className="text-[#b1a28d]">{icon}</span> : null}
+    <div className="border-b border-[#E5E7EB] pb-5">
+        <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.18em] font-semibold text-[#6B7280]">
+            {icon ? <span className="text-[#9CA3AF]">{icon}</span> : null}
             <span>{label}</span>
         </div>
         <div className="mt-3">{children}</div>
-        {hint ? <div className="mt-3 text-[12px] leading-5 text-[#9b948c]">{hint}</div> : null}
+        {hint ? <div className="mt-3 text-[12px] leading-5 text-[#6B7280]">{hint}</div> : null}
     </div>
 );
 
@@ -197,14 +198,15 @@ export const MyCardPhoneView = ({
     const [profile, setProfile] = useState<DigitalCardProfile>(cloneProfile(EMPTY_PROFILE));
     const [step, setStep] = useState(0);
     const [headlineCandidates, setHeadlineCandidates] = useState<string[]>([]);
+    const [industrySuggestions, setIndustrySuggestions] = useState<string[]>(INDUSTRY_SUGGESTIONS);
+    const [recommendedTopics, setRecommendedTopics] = useState<string[]>([]);
     const [draftPrompt, setDraftPrompt] = useState<MyCardDraft | null>(null);
     const [industryInput, setIndustryInput] = useState('');
     const [toast, setToast] = useState('');
     const [polishState, setPolishState] = useState<PolishState>('idle');
     const [prePolishProfile, setPrePolishProfile] = useState<DigitalCardProfile | null>(null);
     const [isLocatingAddress, setIsLocatingAddress] = useState(false);
-    const [isGeneratingHeadlines, setIsGeneratingHeadlines] = useState(false);
-    const [isGeneratingTopics, setIsGeneratingTopics] = useState(false);
+    const [isGeneratingRecommendations, setIsGeneratingRecommendations] = useState(false);
     const [isCustomIndustryInputOpen, setIsCustomIndustryInputOpen] = useState(false);
 
     useEffect(() => {
@@ -213,6 +215,8 @@ export const MyCardPhoneView = ({
             setDraftPrompt(null);
             setProfile(cloneProfile(EMPTY_PROFILE));
             setHeadlineCandidates([]);
+            setIndustrySuggestions(INDUSTRY_SUGGESTIONS);
+            setRecommendedTopics([]);
             setStep(0);
             setScreenMode('onboarding');
             return;
@@ -244,6 +248,8 @@ export const MyCardPhoneView = ({
             setProfile(cloneProfile(storedDraft.profile));
             setStep(storedDraft.step || 0);
             setHeadlineCandidates(generateHeadlineCandidates(cloneProfile(storedDraft.profile)));
+            setIndustrySuggestions(generateIndustrySuggestions(cloneProfile(storedDraft.profile)));
+            setRecommendedTopics(generateTopics(cloneProfile(storedDraft.profile)));
             setScreenMode('onboarding');
             return;
         }
@@ -265,7 +271,7 @@ export const MyCardPhoneView = ({
     }, [screenMode, profile]);
 
     useEffect(() => {
-        if (step !== 2) {
+        if (step !== 4) {
             setIsCustomIndustryInputOpen(false);
             setIndustryInput('');
         }
@@ -319,8 +325,8 @@ export const MyCardPhoneView = ({
 
     const status = useMemo(() => getProfileStatus(savedProfile), [savedProfile]);
     const customIndustries = useMemo(
-        () => profile.industry.filter((item) => !INDUSTRY_SUGGESTIONS.includes(item)),
-        [profile.industry],
+        () => profile.industry.filter((item) => !industrySuggestions.includes(item)),
+        [profile.industry, industrySuggestions],
     );
 
     const persistSavedProfile = (nextProfile: DigitalCardProfile) => {
@@ -332,7 +338,9 @@ export const MyCardPhoneView = ({
     };
 
     const nextFromOnboarding = async () => {
-        if (isGeneratingHeadlines || isGeneratingTopics) return;
+        if (step === 2 && isGeneratingRecommendations) {
+            return;
+        }
 
         if (step === 0 && !profile.name.trim()) {
             showToast('请先填写名字');
@@ -342,31 +350,38 @@ export const MyCardPhoneView = ({
             showToast('职位和公司都需要填写');
             return;
         }
-        if (step === 4 && !profile.headline.trim()) {
+        if (step === 3 && !profile.headline.trim()) {
             showToast('请先选择一句话概括');
             return;
         }
+        if (step === 2) {
+            setIsGeneratingRecommendations(true);
+            try {
+                const generated = await generateOnboardingRecommendationsWithAI(profile);
+                setHeadlineCandidates(generated.headlines);
+                setIndustrySuggestions(generated.industries);
+                setRecommendedTopics(generated.topics);
+                setProfile((current) => ({
+                    ...current,
+                    headline: current.headline || generated.headlines[0] || '',
+                }));
+                setStep((current) => current + 1);
+            } finally {
+                setIsGeneratingRecommendations(false);
+            }
+            return;
+        }
         if (step === 3) {
-            setIsGeneratingHeadlines(true);
-            const generated = await generateHeadlineCandidatesWithAI(profile);
-            setHeadlineCandidates(generated);
-            setProfile((current) => ({
-                ...current,
-                headline: current.headline || generated[0] || '',
-            }));
             setStep((current) => current + 1);
-            setIsGeneratingHeadlines(false);
             return;
         }
         if (step === 4) {
-            setIsGeneratingTopics(true);
             const completedProfile = {
                 ...profile,
-                topics: await generateTopicsWithAI(profile),
+                topics: recommendedTopics.length ? recommendedTopics : generateTopics(profile),
             };
             persistSavedProfile(completedProfile);
             setScreenMode('view');
-            setIsGeneratingTopics(false);
             return;
         }
         setStep((current) => current + 1);
@@ -587,26 +602,81 @@ export const MyCardPhoneView = ({
         },
         {
             eyebrow: 'Step 3',
-            title: '我想把你的方向收得更清楚一点。',
-            body: '你更倾向于被归到哪些行业或身份里？比如 AI、创投、产品、设计都可以说说。',
+            title: '差不多啦，我再了解你一点点。',
+            body: '你现在主要在做什么呢？有没有什么你特别希望别人了解的项目、产品，或者最近在推进的事情？',
             content: (
                 <motion.div {...getEnterProps(0.3)}>
-                    <OnboardingField label="行业或身份标签" hint="先选几个最贴近你的，也可以添加自定义标签。最多 10 个。">
-                        <div className="flex flex-wrap gap-3">
-                            {INDUSTRY_SUGGESTIONS.map((item) => {
+                    <OnboardingField label="你最近主要在做什么" hint="可以写项目、产品，或者希望别人怎么认识你。">
+                        <textarea
+                            value={profile.notes}
+                            onChange={(event) => setProfile((current) => ({ ...current, notes: event.target.value.slice(0, 280) }))}
+                            placeholder="用几句话告诉 Moly，你现在在做什么、希望别人怎么认识你。"
+                            className="w-full min-h-[220px] bg-transparent text-[18px] leading-8 text-[#171717] outline-none resize-none placeholder:text-[#b7ac9c]"
+                        />
+                    </OnboardingField>
+                </motion.div>
+            ),
+        },
+        {
+            eyebrow: 'Step 4',
+            title: '我帮你整理了三句更适合放在名片首页的话。',
+            body: '选一句最像你、也最让人想继续了解你的。',
+            content: (
+                <div className="divide-y divide-[#ddd6cd] border-y border-[#ddd6cd]">
+                    {headlineCandidates.map((headline) => {
+                        const isSelected = profile.headline === headline;
+                        return (
+                            <motion.button
+                                key={headline}
+                                type="button"
+                                {...getEnterProps(0.24 + headlineCandidates.indexOf(headline) * 0.08)}
+                                onClick={() => {
+                                    if (headline.length > 36) {
+                                        showToast('最多输入 36 个字符');
+                                        return;
+                                    }
+                                    setProfile((current) => ({ ...current, headline }));
+                                }}
+                                className="w-full py-4 text-left"
+                            >
+                                <div className="flex items-start justify-between gap-4">
+                                    <div className="min-w-0">
+                                        <div className={`text-[18px] leading-8 transition-colors ${isSelected ? 'text-[#171717]' : 'text-[#4f4a43]'}`}>{headline}</div>
+                                    </div>
+                                    <div className={`mt-1 w-6 h-6 rounded-full border flex items-center justify-center transition-colors ${
+                                        isSelected ? 'border-[#171717] bg-[#171717] text-[#f7f2eb]' : 'border-[#cfc6b8] bg-transparent text-transparent'
+                                    }`}>
+                                        <Check size={13} />
+                                    </div>
+                                </div>
+                            </motion.button>
+                        );
+                    })}
+                </div>
+            ),
+        },
+        {
+            eyebrow: 'Step 5',
+            title: '我再帮你把方向整理成几个标签。',
+            body: '这些标签会出现在名片里，用来让别人更快理解你，选几个最贴近你的就好。',
+            content: (
+                <motion.div {...getEnterProps(0.3)}>
+                    <OnboardingField label="行业或身份标签">
+                        <div className="flex flex-wrap gap-2.5">
+                            {industrySuggestions.map((item) => {
                                 const isSelected = profile.industry.includes(item);
                                 return (
                                     <button
                                         key={item}
                                         type="button"
                                         onClick={() => toggleIndustry(item)}
-                                        className={`h-14 rounded-[18px] border px-4 inline-flex items-center text-left transition-all whitespace-nowrap ${
+                                        className={`h-10 rounded-[14px] border px-3 inline-flex items-center text-left transition-all whitespace-nowrap ${
                                             isSelected
                                                 ? 'border-[#171717] bg-[#171717] text-[#f7f2eb] shadow-[0_14px_24px_rgba(23,23,23,0.14)]'
                                                 : 'border-[#dad3ca] bg-white/88 text-[#27231f] shadow-[0_8px_18px_rgba(76,60,39,0.04)]'
                                         }`}
                                     >
-                                        <span className="text-[15px] font-medium tracking-[-0.02em]">{item}</span>
+                                        <span className="text-[13px] font-medium">{item}</span>
                                     </button>
                                 );
                             })}
@@ -614,36 +684,36 @@ export const MyCardPhoneView = ({
                             <button
                                 type="button"
                                 onClick={() => setIsCustomIndustryInputOpen((current) => !current)}
-                                className={`h-14 rounded-[18px] border px-4 inline-flex items-center gap-3 text-left transition-all whitespace-nowrap ${
+                                className={`h-10 rounded-[14px] border px-3 inline-flex items-center gap-2 text-left transition-all whitespace-nowrap ${
                                     isCustomIndustryInputOpen
                                         ? 'border-[#7a684f] bg-[#ede4d7] text-[#171717]'
                                         : 'border-dashed border-[#d3cabd] bg-[#f8f3ec] text-[#7f7365]'
                                 }`}
                             >
-                                <span className="w-7 h-7 rounded-[10px] bg-white/80 border border-[#dfd4c6] flex items-center justify-center">
-                                    <Plus size={14} />
+                                <span className="w-5 h-5 rounded-[8px] bg-white/80 border border-[#dfd4c6] flex items-center justify-center">
+                                    <Plus size={12} />
                                 </span>
-                                <span className="text-[15px] font-medium">自定义</span>
+                                <span className="text-[13px] font-medium">自定义</span>
                             </button>
                         </div>
 
                         {customIndustries.length > 0 && (
                             <div className="mt-5">
                                 <div className="text-[11px] uppercase tracking-[0.16em] font-semibold text-[#9b948c]">已添加</div>
-                                <div className="mt-3 flex flex-wrap gap-3">
+                                <div className="mt-3 flex flex-wrap gap-2.5">
                                     {customIndustries.map((item) => (
                                         <div
                                             key={item}
-                                            className="h-14 rounded-[18px] border border-[#171717] bg-[#171717] px-4 inline-flex items-center gap-3 text-[#f7f2eb] shadow-[0_14px_24px_rgba(23,23,23,0.14)]"
+                                            className="h-10 rounded-[14px] border border-[#171717] bg-[#171717] px-3 inline-flex items-center gap-2 text-[#f7f2eb] shadow-[0_14px_24px_rgba(23,23,23,0.14)]"
                                         >
-                                            <span className="text-[15px] font-medium tracking-[-0.02em]">{item}</span>
+                                            <span className="text-[13px] font-medium">{item}</span>
                                             <button
                                                 type="button"
                                                 onClick={() => removeIndustry(item)}
                                                 aria-label={`删除标签 ${item}`}
-                                                className="w-6 h-6 rounded-[10px] bg-white/10 border border-white/10 flex items-center justify-center"
+                                                className="w-5 h-5 rounded-[8px] bg-white/10 border border-white/10 flex items-center justify-center"
                                             >
-                                                <X size={12} />
+                                                <X size={10} />
                                             </button>
                                         </div>
                                     ))}
@@ -691,88 +761,60 @@ export const MyCardPhoneView = ({
                                 </motion.div>
                             )}
                         </AnimatePresence>
+
+                        <div className="mt-5 text-[12px] leading-5 text-[#9b948c]">
+                            这些标签会出现在名片里，用来让别人更快理解你，选几个最贴近你的就好。
+                        </div>
                     </OnboardingField>
                 </motion.div>
-            ),
-        },
-        {
-            eyebrow: 'Step 4',
-            title: '差不多啦，我再了解你一点点。',
-            body: '你现在主要在做什么呢？有没有什么你特别希望别人了解的项目、产品，或者最近在推进的事情？',
-            content: (
-                <motion.div {...getEnterProps(0.3)}>
-                    <OnboardingField label="你最近主要在做什么" hint="可以写项目、产品，或者希望别人怎么认识你。">
-                        <textarea
-                            value={profile.notes}
-                            onChange={(event) => setProfile((current) => ({ ...current, notes: event.target.value.slice(0, 280) }))}
-                            placeholder="用几句话告诉 Moly，你现在在做什么、希望别人怎么认识你。"
-                            className="w-full min-h-[220px] bg-transparent text-[18px] leading-8 text-[#171717] outline-none resize-none placeholder:text-[#b7ac9c]"
-                        />
-                    </OnboardingField>
-                </motion.div>
-            ),
-        },
-        {
-            eyebrow: 'Step 5',
-            title: '我根据你刚才说的，帮你整理了三句适合放在名片首页的话。',
-            body: '你看看，哪一句最像你？',
-            content: (
-                <div className="divide-y divide-[#ddd6cd] border-y border-[#ddd6cd]">
-                    {headlineCandidates.map((headline) => {
-                        const isSelected = profile.headline === headline;
-                        return (
-                            <motion.button
-                                key={headline}
-                                type="button"
-                                {...getEnterProps(0.24 + headlineCandidates.indexOf(headline) * 0.08)}
-                                onClick={() => {
-                                    if (headline.length > 25) {
-                                        showToast('最多输入 25 个字符');
-                                        return;
-                                    }
-                                    setProfile((current) => ({ ...current, headline }));
-                                }}
-                                className="w-full py-4 text-left"
-                            >
-                                <div className="flex items-start justify-between gap-4">
-                                    <div className="min-w-0">
-                                        <div className={`text-[18px] leading-8 transition-colors ${isSelected ? 'text-[#171717]' : 'text-[#4f4a43]'}`}>{headline}</div>
-                                        <div className={`mt-2 text-[12px] ${isSelected ? 'text-[#7a684f]' : 'text-[#8a857f]'}`}>
-                                            {isSelected ? '已选中，将作为名片首页 headline' : '点击选择这句作为首页概括'}
-                                        </div>
-                                    </div>
-                                    <div className={`mt-1 w-6 h-6 rounded-full border flex items-center justify-center transition-colors ${
-                                        isSelected ? 'border-[#171717] bg-[#171717] text-[#f7f2eb]' : 'border-[#cfc6b8] bg-transparent text-transparent'
-                                    }`}>
-                                        <Check size={13} />
-                                    </div>
-                                </div>
-                            </motion.button>
-                        );
-                    })}
-                </div>
             ),
         },
     ];
 
     const currentStep = onboardingSteps[step];
+    const loadingStep = {
+        eyebrow: 'Analyzing',
+        title: '我在整理你的名片内容。',
+        body: '正在把你的背景、方向和表达方式收成更有吸引力的一版，马上就好。',
+        content: (
+            <div className="pt-10">
+                <div className="flex flex-col items-start gap-5">
+                    <div className="w-12 h-12 rounded-full border border-[#E5E7EB] bg-white flex items-center justify-center shadow-[0_10px_24px_rgba(15,23,42,0.08)]">
+                        <Sparkles size={18} className="animate-pulse" />
+                    </div>
+                    <div className="space-y-3 w-full max-w-[290px]">
+                        <div className="h-3 rounded-full bg-[#E5E7EB] w-[72%] animate-pulse" />
+                        <div className="h-3 rounded-full bg-[#F1F5F9] w-[88%] animate-pulse" />
+                        <div className="h-3 rounded-full bg-[#E5E7EB] w-[64%] animate-pulse" />
+                    </div>
+                    <div className="text-[13px] leading-6 text-[#6B7280]">
+                        正在生成首页介绍、标签建议和可继续聊的话题。
+                    </div>
+                </div>
+            </div>
+        ),
+    };
+    const displayedStep = isGeneratingRecommendations && step === 2 ? loadingStep : currentStep;
+    const isNextDisabled = step === 2 && isGeneratingRecommendations;
+    const nextButtonLabel = isGeneratingRecommendations ? '正在整理名片内容' : step === 4 ? '生成名片' : '下一步';
+    const showVoiceInputButton = step < 3;
 
     return (
-            <div className="h-full bg-[#efe9df] overflow-hidden relative text-[#171717]">
-            <div className="absolute inset-0 pointer-events-none opacity-[0.5]" style={{ backgroundImage: 'linear-gradient(rgba(160,130,80,0.055) 1px, transparent 1px), linear-gradient(90deg, rgba(160,130,80,0.055) 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
-            <div className="absolute top-0 inset-x-0 h-[180px] bg-[radial-gradient(circle_at_top,rgba(185,160,120,0.18),transparent_42%),radial-gradient(circle_at_20%_30%,rgba(94,106,210,0.08),transparent_32%)] pointer-events-none" />
+            <div className="h-full bg-white overflow-hidden relative text-[#171717]">
+            <div className="absolute inset-0 pointer-events-none opacity-[0.22]" style={{ backgroundImage: 'linear-gradient(rgba(148,163,184,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(148,163,184,0.06) 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+            <div className="absolute top-0 inset-x-0 h-[180px] bg-[radial-gradient(circle_at_top,rgba(148,163,184,0.08),transparent_42%),radial-gradient(circle_at_20%_30%,rgba(94,106,210,0.05),transparent_32%)] pointer-events-none" />
 
             <div className="relative z-10 px-5 pt-12 pb-4 flex items-center justify-between">
                 <button
                     onClick={onBack}
-                    className="w-10 h-10 rounded-[12px] bg-white/88 backdrop-blur border border-[#dacdbd] flex items-center justify-center text-[#6b665f]"
+                    className="w-10 h-10 rounded-[12px] bg-white/88 backdrop-blur border border-[#E5E7EB] flex items-center justify-center text-[#4B5563]"
                 >
                     <ArrowLeft size={18} />
                 </button>
 
                 <div className="text-center">
                     <div className="text-[15px] font-semibold text-[#171717]">我的名片</div>
-                    <div className="text-[11px] text-[#9b948c]">
+                    <div className="text-[11px] text-[#6B7280]">
                         {screenMode === 'onboarding' ? '首次信息整理' : screenMode === 'editing' ? '编辑模式' : '展示模式'}
                     </div>
                 </div>
@@ -781,13 +823,13 @@ export const MyCardPhoneView = ({
                     <div className="flex items-center gap-2">
                         <button
                             onClick={triggerShare}
-                            className="w-10 h-10 rounded-[12px] bg-white/88 backdrop-blur border border-[#dacdbd] flex items-center justify-center text-[#6b665f]"
+                            className="w-10 h-10 rounded-[12px] bg-white/88 backdrop-blur border border-[#E5E7EB] flex items-center justify-center text-[#4B5563]"
                         >
                             <Share2 size={17} />
                         </button>
                         <button
                             onClick={() => startEditing()}
-                            className="w-10 h-10 rounded-[12px] bg-[#7a684f] border border-[#7a684f] flex items-center justify-center text-[#f7f2eb]"
+                            className="w-10 h-10 rounded-[12px] bg-[#171717] border border-[#171717] flex items-center justify-center text-white"
                         >
                             <PencilLine size={17} />
                         </button>
@@ -796,7 +838,7 @@ export const MyCardPhoneView = ({
                     <div className="flex items-center gap-2">
                         <button
                             onClick={cancelEditing}
-                                className="h-10 px-3 rounded-[12px] bg-white/88 backdrop-blur border border-[#dacdbd] text-[13px] font-medium text-[#6b665f]"
+                                className="h-10 px-3 rounded-[12px] bg-white/88 backdrop-blur border border-[#E5E7EB] text-[13px] font-medium text-[#4B5563]"
                         >
                             取消
                         </button>
@@ -805,8 +847,8 @@ export const MyCardPhoneView = ({
                             disabled={polishState === 'loading'}
                             className={`h-10 px-3 rounded-[12px] text-[13px] font-medium ${
                                 polishState === 'loading'
-                                        ? 'bg-[#cbbda9] text-[#f7f2eb]'
-                                        : 'bg-[#7a684f] text-[#f7f2eb]'
+                                        ? 'bg-[#9CA3AF] text-white'
+                                        : 'bg-[#171717] text-white'
                                 }`}
                         >
                             保存
@@ -816,19 +858,19 @@ export const MyCardPhoneView = ({
             </div>
 
             {toast && (
-                    <div className="absolute top-28 left-1/2 -translate-x-1/2 z-30 px-4 py-2 rounded-full bg-[#6b5a45] text-[#f7f2eb] text-[12px] shadow-lg">
+                    <div className="absolute top-28 left-1/2 -translate-x-1/2 z-30 px-4 py-2 rounded-full bg-[#171717] text-white text-[12px] shadow-lg">
                         {toast}
                     </div>
                 )}
 
             {draftPrompt && screenMode === 'view' && (
-                <div className="mx-5 mt-3 rounded-[18px] border border-[#d9dffb] bg-[#eef1ff] px-4 py-3">
-                    <div className="text-[13px] font-medium text-[#2f3d8f]">您有未保存的修改，是否继续编辑？</div>
+                <div className="mx-5 mt-3 rounded-[18px] border border-[#E5E7EB] bg-[#F9FAFB] px-4 py-3">
+                    <div className="text-[13px] font-medium text-[#111827]">您有未保存的修改，是否继续编辑？</div>
                     <div className="mt-3 flex items-center gap-2">
                         <button
                             type="button"
                             onClick={() => startEditing(draftPrompt)}
-                            className="flex-1 h-10 rounded-[12px] bg-[#5E6AD2] text-white text-[13px] font-medium"
+                            className="flex-1 h-10 rounded-[12px] bg-[#111827] text-white text-[13px] font-medium"
                         >
                             继续编辑
                         </button>
@@ -838,7 +880,7 @@ export const MyCardPhoneView = ({
                                 removeStoredJson(MY_CARD_DRAFT_KEY);
                                 setDraftPrompt(null);
                             }}
-                            className="flex-1 h-10 rounded-[12px] bg-white border border-[#d9dffb] text-[13px] font-medium text-[#4b56b0]"
+                            className="flex-1 h-10 rounded-[12px] bg-white border border-[#E5E7EB] text-[13px] font-medium text-[#4B5563]"
                         >
                             放弃草稿
                         </button>
@@ -849,14 +891,14 @@ export const MyCardPhoneView = ({
             {screenMode === 'onboarding' ? (
                 <>
                     <div ref={onboardingScrollRef} className="px-5 pt-1 pb-[164px] overflow-y-auto h-[calc(100%-96px)]">
-                        <div className="sticky top-0 z-10 bg-[linear-gradient(180deg,#efe9df_0%,rgba(239,233,223,0.92)_75%,rgba(239,233,223,0)_100%)] pt-1 pb-5">
-                            <div className="flex items-center justify-between text-[11px] uppercase tracking-[0.18em] font-semibold text-[#9b948c]">
+                        <div className="sticky top-0 z-10 bg-[linear-gradient(180deg,#ffffff_0%,rgba(255,255,255,0.92)_75%,rgba(255,255,255,0)_100%)] pt-1 pb-5">
+                            <div className="flex items-center justify-between text-[11px] uppercase tracking-[0.18em] font-semibold text-[#6B7280]">
                                 <span>{currentStep.eyebrow}</span>
                                 <span>{step + 1} / {onboardingSteps.length}</span>
                             </div>
                             <div className="mt-3 flex items-center gap-2">
                                 {onboardingSteps.map((_, index) => (
-                                    <div key={index} className={`h-1.5 flex-1 rounded-full transition-colors ${index <= step ? 'bg-[#171717]' : 'bg-[#d7d0c6]'}`} />
+                                    <div key={index} className={`h-1.5 flex-1 rounded-full transition-colors ${index <= step ? 'bg-[#171717]' : 'bg-[#E5E7EB]'}`} />
                                 ))}
                             </div>
                         </div>
@@ -877,27 +919,27 @@ export const MyCardPhoneView = ({
                                 className="pb-8"
                             >
                                 <motion.div {...getEnterProps(0.02)} className="max-w-[280px] text-[34px] leading-[1.04] font-semibold tracking-[-0.05em] text-[#171717]">
-                                    {currentStep.title}
+                                    {displayedStep.title}
                                 </motion.div>
                                 <motion.p {...getEnterProps(0.14)} className="mt-4 max-w-[308px] text-[15px] leading-7 text-[#6b665f]">
-                                    {currentStep.body}
+                                    {displayedStep.body}
                                 </motion.p>
 
-                                <div className="mt-10">{currentStep.content}</div>
+                                <div className="mt-10">{displayedStep.content}</div>
                             </motion.div>
                         </AnimatePresence>
                     </div>
 
-                    <div className="pointer-events-none absolute inset-x-0 bottom-0 h-36 bg-gradient-to-t from-[#efe9df] via-[#efe9df]/95 to-transparent" />
+                    <div className="pointer-events-none absolute inset-x-0 bottom-0 h-36 bg-gradient-to-t from-white via-white/95 to-transparent" />
                     <div className="absolute inset-x-0 bottom-0 z-20 px-5 pb-6">
-                        <div className="grid grid-cols-3 items-end gap-4">
+                        <div className={`grid items-end gap-4 ${showVoiceInputButton ? 'grid-cols-3' : 'grid-cols-2'}`}>
                             {step > 0 ? (
                                 <button
                                     type="button"
                                     onClick={() => setStep((current) => current - 1)}
                                     aria-label="上一步"
                                     title="上一步"
-                                    className="justify-self-start w-12 h-12 rounded-full border border-[#d7cebf] bg-[#f4eee5]/95 text-[#6b665f] backdrop-blur flex items-center justify-center shadow-[0_10px_24px_rgba(97,82,61,0.08)] transition-transform active:scale-[0.98]"
+                                    className="justify-self-start w-12 h-12 rounded-full border border-[#E5E7EB] bg-white/95 text-[#4B5563] backdrop-blur flex items-center justify-center shadow-[0_10px_24px_rgba(15,23,42,0.08)] transition-transform active:scale-[0.98]"
                                 >
                                     <ArrowLeft size={18} />
                                 </button>
@@ -905,26 +947,28 @@ export const MyCardPhoneView = ({
                                 <div className="justify-self-start w-12 h-12" />
                             )}
 
-                            <button
-                                type="button"
-                                onClick={() => showToast('语音输入演示中')}
-                                aria-label="语音输入"
-                                title="语音输入"
-                                className="justify-self-center w-14 h-14 rounded-full border border-[#d9cebe] bg-[#f6f0e7] text-[#171717] shadow-[0_16px_28px_rgba(82,63,39,0.14)] flex items-center justify-center transition-transform active:scale-[0.98]"
-                            >
-                                <Mic size={19} strokeWidth={1.9} />
-                            </button>
+                            {showVoiceInputButton ? (
+                                <button
+                                    type="button"
+                                    onClick={() => showToast('语音输入演示中')}
+                                    aria-label="语音输入"
+                                    title="语音输入"
+                                    className="justify-self-center w-14 h-14 rounded-full border border-[#E5E7EB] bg-white text-[#171717] shadow-[0_16px_28px_rgba(15,23,42,0.12)] flex items-center justify-center transition-transform active:scale-[0.98]"
+                                >
+                                    <Mic size={19} strokeWidth={1.9} />
+                                </button>
+                            ) : null}
 
                             <button
                                 type="button"
                                 onClick={nextFromOnboarding}
-                                disabled={isGeneratingHeadlines || isGeneratingTopics}
-                                aria-label={isGeneratingHeadlines ? '正在整理' : isGeneratingTopics ? '正在生成' : step === 4 ? '生成名片' : '下一步'}
-                                title={isGeneratingHeadlines ? '正在整理' : isGeneratingTopics ? '正在生成' : step === 4 ? '生成名片' : '下一步'}
-                                className={`justify-self-end w-14 h-14 rounded-full flex items-center justify-center shadow-[0_18px_32px_rgba(92,72,47,0.24)] transition-transform ${
-                                    isGeneratingHeadlines || isGeneratingTopics
-                                        ? 'bg-[#cbbda9] text-[#f7f2eb]'
-                                        : 'bg-[#7a684f] text-[#f7f2eb] active:scale-[0.98]'
+                                disabled={isNextDisabled}
+                                aria-label={nextButtonLabel}
+                                title={nextButtonLabel}
+                                className={`justify-self-end w-14 h-14 rounded-full flex items-center justify-center shadow-[0_18px_32px_rgba(15,23,42,0.18)] transition-transform ${
+                                    isNextDisabled
+                                        ? 'bg-[#9CA3AF] text-white'
+                                        : 'bg-[#171717] text-white active:scale-[0.98]'
                                 }`}
                             >
                                 <ChevronRight size={16} />
@@ -961,18 +1005,18 @@ export const MyCardPhoneView = ({
                                 <HeroTextField
                                     editing={screenMode === 'editing'}
                                     value={profile.headline}
-                                    placeholder="一句话概括你在做什么"
+                                    placeholder="用一句话说明你是谁、正在做什么、在哪个领域"
                                     className="text-[24px] leading-[1.34] tracking-[-0.02em] text-[#171717]"
                                     style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
                                     highlighted={polishState === 'preview' && isFieldHighlighted('headline', profile, prePolishProfile)}
                                     onChange={(value) => {
-                                        if (value.length > 25) {
-                                            showToast('最多输入 25 个字符');
+                                        if (value.length > 36) {
+                                            showToast('最多输入 36 个字符');
                                             return;
                                         }
                                         setProfile((current) => ({ ...current, headline: value }));
                                     }}
-                                    maxLength={25}
+                                    maxLength={36}
                                     multiline
                                 />
                             </div>
@@ -1017,7 +1061,7 @@ export const MyCardPhoneView = ({
                         </div>
                     </section>
 
-                    <section className="relative -mt-10 bg-[#f8f5ef] border-t border-[rgba(184,147,58,0.18)] px-5 pt-7 pb-28">
+                    <section className="relative -mt-10 bg-white border-t border-[rgba(148,163,184,0.18)] px-5 pt-7 pb-28">
                         <div className="flex items-center justify-between mb-5">
                             <div>
                                 <div className="text-[40px] leading-none text-[#d8d0c5]" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>03</div>
@@ -1133,8 +1177,8 @@ export const MyCardPhoneView = ({
                         onClick={startPolish}
                         className={`w-full h-12 rounded-[16px] shadow-[0_18px_36px_rgba(15,23,42,0.14)] flex items-center justify-center gap-2 text-[14px] font-medium ${
                             polishState === 'loading'
-                                ? 'bg-[#cbbda9] text-[#f7f2eb]'
-                                : 'bg-[#7a684f] text-[#f7f2eb]'
+                                ? 'bg-[#9CA3AF] text-white'
+                                : 'bg-[#171717] text-white'
                         }`}
                     >
                         <Sparkles size={16} />
@@ -1144,13 +1188,13 @@ export const MyCardPhoneView = ({
             )}
 
             {screenMode === 'editing' && polishState === 'preview' && (
-                <div className="absolute bottom-5 left-5 right-5 rounded-[20px] border border-[#d9dffb] bg-white/98 backdrop-blur px-4 py-4 shadow-[0_20px_40px_rgba(15,23,42,0.16)]">
-                    <div className="text-[13px] font-medium text-[#2f3d8f]">润色结果已更新到页面里，确认要采用吗？</div>
+                <div className="absolute bottom-5 left-5 right-5 rounded-[20px] border border-[#E5E7EB] bg-white/98 backdrop-blur px-4 py-4 shadow-[0_20px_40px_rgba(15,23,42,0.16)]">
+                    <div className="text-[13px] font-medium text-[#111827]">润色结果已更新到页面里，确认要采用吗？</div>
                     <div className="mt-3 flex items-center gap-3">
                         <button
                             type="button"
                             onClick={adoptPolish}
-                            className="flex-1 h-11 rounded-[14px] bg-[#7a684f] text-[#f7f2eb] text-[14px] font-medium inline-flex items-center justify-center gap-2"
+                            className="flex-1 h-11 rounded-[14px] bg-[#171717] text-white text-[14px] font-medium inline-flex items-center justify-center gap-2"
                         >
                             <Check size={16} />
                             采用
@@ -1158,7 +1202,7 @@ export const MyCardPhoneView = ({
                         <button
                             type="button"
                             onClick={undoPolish}
-                            className="flex-1 h-11 rounded-[14px] bg-white border border-[#d9dffb] text-[14px] font-medium text-[#4b56b0] inline-flex items-center justify-center gap-2"
+                            className="flex-1 h-11 rounded-[14px] bg-white border border-[#E5E7EB] text-[14px] font-medium text-[#4B5563] inline-flex items-center justify-center gap-2"
                         >
                             <RotateCcw size={16} />
                             撤销
@@ -1167,7 +1211,7 @@ export const MyCardPhoneView = ({
                 </div>
             )}
 
-            <div className="absolute bottom-1.5 left-1/2 -translate-x-1/2 w-32 h-1 bg-[#d3cec7] rounded-full" />
+            <div className="absolute bottom-1.5 left-1/2 -translate-x-1/2 w-32 h-1 bg-[#D1D5DB] rounded-full" />
         </div>
     );
 };

@@ -42,6 +42,7 @@ import { format, startOfWeek, addDays, isSameDay } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
 import { ContactsPhoneList } from './ContactsDemo';
 import { MyCardPhoneView } from './MyCardDemo';
+import MeetingsDemo from './MeetingsDemo';
 import { getMiniMaxText, requestMiniMaxChat, stripThinkTags } from '../lib/minimax';
 
 // --- Utility Functions ---
@@ -1868,7 +1869,7 @@ export default function App() {
                         </div>
                     )}
                 </div>
-            ) : activeTab !== '记忆' && activeTab !== '联系人' && (
+            ) : activeTab !== '记忆' && activeTab !== '联系人' && activeTab !== '会议记录' && (
                 <div className="pt-14 pb-3 px-6 bg-white flex justify-between items-center shadow-sm z-10 shrink-0">
                     <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">{activeTab}</h1>
                     <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center border border-slate-100">
@@ -2368,7 +2369,7 @@ export default function App() {
                             </div>
                         </div>
                     );
-                })() : null /* Fallback */}
+                })() : activeTab === '会议记录' ? <MeetingsDemo /> : null /* Fallback */}
             </div>
 
 

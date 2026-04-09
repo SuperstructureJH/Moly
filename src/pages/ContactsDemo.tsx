@@ -50,8 +50,8 @@ export const ContactsPhoneList = ({ onOpenMyCard }: { onOpenMyCard: () => void }
     const avatarLabel = profile?.name?.slice(0, 1) || '我';
 
     return (
-        <div className="h-full flex flex-col bg-[#F3F2EF] text-[#171717] overflow-hidden">
-            <div className="px-6 pt-12 pb-4 flex justify-between items-center bg-[#F3F2EF] z-10 sticky top-0">
+        <div className="h-full flex flex-col bg-white text-[#171717] overflow-hidden">
+            <div className="px-6 pt-12 pb-4 flex justify-between items-center bg-white z-10 sticky top-0">
                 <button className="p-2 -ml-2 text-[#7b766f] hover:text-[#171717]">
                     <ChevronLeft className="w-6 h-6" />
                 </button>
@@ -62,7 +62,7 @@ export const ContactsPhoneList = ({ onOpenMyCard }: { onOpenMyCard: () => void }
                 <div className="w-10" />
             </div>
 
-            <div className="flex-1 overflow-y-auto no-scrollbar relative flex bg-[#fbfbfa] rounded-t-[24px] shadow-[0_-10px_40px_rgba(0,0,0,0.04)] mt-2">
+            <div className="flex-1 overflow-y-auto no-scrollbar relative flex bg-white rounded-t-[24px] shadow-[0_-10px_40px_rgba(0,0,0,0.04)] mt-2">
                 <div className="flex-1 px-6 pb-32 pt-6">
                     <div className="mb-8 cursor-pointer group" onClick={onOpenMyCard}>
                         <div className="p-4 bg-white rounded-[18px] border border-[#ece8e3] shadow-[0_8px_30px_rgba(15,23,42,0.04)] transition-all hover:shadow-[0_12px_32px_rgba(15,23,42,0.06)]">
@@ -86,7 +86,7 @@ export const ContactsPhoneList = ({ onOpenMyCard }: { onOpenMyCard: () => void }
 
                     {contacts.map((group) => (
                         <div key={group.section} className="mb-6">
-                            <div className="text-[#9b948c] text-[13px] py-1 mb-2 sticky top-0 bg-[#fbfbfa]/95 backdrop-blur-sm z-10 font-bold">
+                            <div className="text-[#9b948c] text-[13px] py-1 mb-2 sticky top-0 bg-white/95 backdrop-blur-sm z-10 font-bold">
                                 {group.section}
                             </div>
                             <div className="space-y-4">
