@@ -610,7 +610,7 @@ export const MyCardPhoneView = ({
                         <textarea
                             value={profile.notes}
                             onChange={(event) => setProfile((current) => ({ ...current, notes: event.target.value.slice(0, 280) }))}
-                            placeholder="用几句话告诉 Moly，你现在在做什么、希望别人怎么认识你。"
+                            placeholder="用几句话告诉Moly关于你的事情吧～"
                             className="w-full min-h-[220px] bg-transparent text-[18px] leading-8 text-[#171717] outline-none resize-none placeholder:text-[#b7ac9c]"
                         />
                     </div>
